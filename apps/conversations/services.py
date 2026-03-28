@@ -598,7 +598,9 @@ When the user asks for a change, use the modify_scenario tool to make it. Always
 
 Use web_search when the user asks about real-world entities to help calibrate parameters.
 
-Be conversational and helpful. When making changes, explain the strategic implications (e.g., "Increasing their capability from 40 to 60 means they now have significantly more influence — this will likely shift the predicted outcome toward their preferred position")."""
+Be conversational and helpful. When making changes, explain the strategic implications (e.g., "Increasing their capability from 40 to 60 means they now have significantly more influence — this will likely shift the predicted outcome toward their preferred position").
+
+CRITICAL: When adding a new player, you MUST include their positions array with position, capability, salience, flexibility, and risk_profile values for every issue in the scenario. A player without positions is useless — they cannot participate in simulations. If you don't have values, use reasonable defaults and tell the user what you chose."""
 
 
 @tool
@@ -609,13 +611,15 @@ def modify_scenario(
 
     Args:
         modifications: List of modification objects. Each has a "type" field and relevant data:
-            - {"type": "add_player", "name": str, "description": str, "player_type": str}
+            - {"type": "add_player", "name": str, "description": str, "player_type": str, "positions": [{"issue_title": str, "position": float, "capability": float, "salience": float, "flexibility": float, "risk_profile": str}]} — ALWAYS include positions when adding a player. If the scenario has one issue, you may omit issue_title.
             - {"type": "remove_player", "player_name": str}
-            - {"type": "update_player_position", "player_name": str, "issue_title": str, "position": float, "capability": float, "salience": float, "flexibility": float, "risk_profile": str}
+            - {"type": "update_player_position", "player_name": str, "issue_title": str, "position": float, "capability": float, "salience": float, "flexibility": float, "risk_profile": str} — use this to change an existing player's parameters
             - {"type": "add_issue", "title": str, "description": str, "scale_min_label": str, "scale_max_label": str, "status_quo_position": int}
             - {"type": "update_issue", "issue_title": str, "scale_min_label": str, "scale_max_label": str, "status_quo_position": int}
             - {"type": "remove_issue", "issue_title": str}
             - {"type": "update_player_meta", "player_name": str, "name": str, "description": str, "player_type": str}
+
+    IMPORTANT: When adding a player, ALWAYS include their positions array with values for each issue in the scenario. A player without positions cannot participate in simulations.
     """
     # Placeholder — actual execution in tool_handler which injects scenario_id from state
     return json.dumps({"modifications": modifications})
@@ -637,13 +641,36 @@ def _apply_modifications(scenario_id: str, modifications: list[dict], user: Any)
         if mod_type == "add_player":
             pt_code = mod.get("player_type", "individual").upper()
             player_type_lv = LookupValue.objects.get(parent=player_type_parent, code=pt_code)
-            Player.objects.create(
+            player = Player.objects.create(
                 scenario=scenario,
                 name=mod["name"],
                 description=mod.get("description", ""),
                 player_type=player_type_lv,
             )
-            results.append(f"Added player '{mod['name']}'")
+            # Auto-create positions if provided inline
+            for pos_data in mod.get("positions", []):
+                issue_title = pos_data.get("issue_title", "")
+                issue = ScenarioIssue.objects.filter(
+                    scenario=scenario, title__iexact=issue_title, is_active=True,
+                ).first()
+                if not issue:
+                    # If only one issue, use it by default
+                    issues = list(scenario.issues.filter(is_active=True))
+                    issue = issues[0] if len(issues) == 1 else None
+                if issue:
+                    rp_code = pos_data.get("risk_profile", "risk_neutral").upper()
+                    risk_lv = LookupValue.objects.get(parent=risk_parent, code=rp_code)
+                    PlayerPosition.objects.create(
+                        player=player,
+                        issue=issue,
+                        position=Decimal(str(pos_data.get("position", 50))),
+                        capability=Decimal(str(pos_data.get("capability", 50))),
+                        salience=Decimal(str(pos_data.get("salience", 50))),
+                        flexibility=Decimal(str(pos_data.get("flexibility", 50))),
+                        risk_profile=risk_lv,
+                    )
+            pos_count = PlayerPosition.objects.filter(player=player).count()
+            results.append(f"Added player '{mod['name']}' with {pos_count} position(s)")
 
         elif mod_type == "remove_player":
             player = Player.objects.filter(
@@ -687,6 +714,9 @@ def _apply_modifications(scenario_id: str, modifications: list[dict], user: Any)
                 results.append(f"Player or issue not found for update")
 
         elif mod_type == "add_issue":
+            from django.db.models import Max
+            max_order = scenario.issues.aggregate(m=Max("sort_order"))["m"]
+            next_order = (max_order + 1) if max_order is not None else 0
             issue = ScenarioIssue.objects.create(
                 scenario=scenario,
                 title=mod["title"],
@@ -694,7 +724,7 @@ def _apply_modifications(scenario_id: str, modifications: list[dict], user: Any)
                 scale_min_label=mod["scale_min_label"],
                 scale_max_label=mod["scale_max_label"],
                 status_quo_position=mod.get("status_quo_position", 50),
-                sort_order=scenario.issues.count(),
+                sort_order=next_order,
             )
             results.append(f"Added issue '{mod['title']}'")
 
@@ -779,10 +809,60 @@ def modifier_tool_handler_node(state: ConversationState) -> dict:
     return {"messages": results}
 
 
+def _build_scenario_context(scenario_id: str) -> str:
+    """Build a text summary of the current scenario state for the LLM."""
+    try:
+        scenario = Scenario.objects.get(pk=scenario_id)
+    except Scenario.DoesNotExist:
+        return "Scenario not found."
+
+    issues = list(scenario.issues.filter(is_active=True).order_by("sort_order"))
+    players = list(scenario.players.filter(is_active=True).select_related("player_type").order_by("name"))
+
+    lines = [
+        f"SCENARIO: {scenario.title}",
+        f"DESCRIPTION: {scenario.description}",
+        "",
+        "ISSUES:",
+    ]
+    for issue in issues:
+        lines.append(
+            f"  - \"{issue.title}\": scale 0={issue.scale_min_label}, 100={issue.scale_max_label}, status_quo={issue.status_quo_position}"
+        )
+
+    lines.append("")
+    lines.append("PLAYERS AND CURRENT POSITIONS:")
+    for player in players:
+        positions = PlayerPosition.objects.filter(
+            player=player, is_active=True,
+        ).select_related("issue", "risk_profile")
+        if positions.exists():
+            for pp in positions:
+                lines.append(
+                    f"  - \"{player.name}\" ({player.player_type.label}) on \"{pp.issue.title}\": "
+                    f"position={pp.position}, capability={pp.capability}, salience={pp.salience}, "
+                    f"flexibility={pp.flexibility}, risk_profile={pp.risk_profile.code.lower()}"
+                )
+        else:
+            lines.append(
+                f"  - \"{player.name}\" ({player.player_type.label}): NO POSITIONS SET"
+            )
+
+    return "\n".join(lines)
+
+
 def scenario_modifier_node(state: ConversationState) -> dict:
     """Conversational node for scenario modification."""
     llm = _get_llm().bind_tools(MODIFIER_TOOLS)
-    prompt = SCENARIO_MODIFIER_PROMPT + f"\n\nYou are working on scenario ID: {state['scenario_id']}. Do NOT ask the user for a scenario ID — it is already set."
+
+    # Inject live scenario data into the system prompt
+    scenario_context = _build_scenario_context(state["scenario_id"])
+    prompt = (
+        SCENARIO_MODIFIER_PROMPT
+        + f"\n\nYou are working on scenario ID: {state['scenario_id']}. Do NOT ask the user for a scenario ID — it is already set."
+        + f"\n\n--- CURRENT SCENARIO STATE ---\n{scenario_context}\n--- END SCENARIO STATE ---"
+        + "\n\nIMPORTANT: When the user asks you to set or update values for players, you MUST call the modify_scenario tool with update_player_position entries for EVERY player that needs changes. Use the exact player names and issue titles shown above. The tool call is what saves the data — if you don't call it, nothing is saved."
+    )
     system = SystemMessage(content=prompt)
     messages = [system] + state["messages"]
     response = llm.invoke(messages)
@@ -914,3 +994,61 @@ def send_modifier_message(
     )
 
     return {"assistant_message": assistant_text}
+
+
+def ai_research_players(scenario: Scenario, user: Any) -> str:
+    """
+    Use LLM + web search to research all players in a scenario
+    and set their position, capability, salience, flexibility, and risk profile
+    based on external data. Overwrites existing values.
+    """
+    scenario_context = _build_scenario_context(str(scenario.pk))
+
+    prompt = f"""You are a game theory research analyst. Your task is to research the players in this scenario
+and determine accurate values for their position, capability, salience, flexibility, and risk profile
+on each issue.
+
+{scenario_context}
+
+INSTRUCTIONS:
+1. Use web_search to research each player — look for their current stance, power/influence, priorities, and negotiation style.
+2. Based on your research, determine values (0-100) for each player on each issue:
+   - position: where they want the outcome to land on the 0-100 scale
+   - capability: their relative power/influence compared to other players
+   - salience: how much they care about this specific issue
+   - flexibility: how willing they are to compromise
+   - risk_profile: risk_averse, risk_neutral, or risk_acceptant
+3. Call modify_scenario with update_player_position entries for EVERY player on EVERY issue.
+4. Use the EXACT player names and issue titles shown above.
+5. Set ALL values — do not leave any player without complete parameters.
+
+Research thoroughly, then make all the modifications in a single tool call."""
+
+    graph = _get_modifier_graph()
+    initial_state: ConversationState = {
+        "messages": [HumanMessage(content=prompt)],
+        "session_id": "",
+        "user_id": str(user.pk),
+        "scenario_created": False,
+        "scenario_id": str(scenario.pk),
+    }
+
+    result = graph.invoke(initial_state)
+
+    # Count how many positions were updated
+    updated = PlayerPosition.objects.filter(
+        player__scenario=scenario,
+        player__is_active=True,
+        is_active=True,
+    ).count()
+
+    # Extract the LLM's explanation
+    explanation = ""
+    for msg in reversed(result["messages"]):
+        if isinstance(msg, AIMessage):
+            content = msg.content if isinstance(msg.content, str) else str(msg.content)
+            if content:
+                explanation = content
+                break
+
+    return f"AI research complete. {updated} player positions updated across all issues."

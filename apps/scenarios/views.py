@@ -5,6 +5,7 @@ import json
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db import models as db_models
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.views import View
@@ -158,6 +159,7 @@ class ScenarioDetailView(LoginRequiredMixin, View):
                         "position": pp.position,
                         "capability": pp.capability,
                         "salience": pp.salience,
+                        "flexibility": pp.flexibility,
                         "edit_url": edit_url,
                     })
                 else:
@@ -212,6 +214,48 @@ class ScenarioDetailView(LoginRequiredMixin, View):
             for r in round_data
         ]
 
+        # Build detailed round data for the simulation drawer
+        detail_round_json = [
+            {
+                "round": r.round_number,
+                "player": r.player.name,
+                "issue": r.issue.title,
+                "pos_start": float(r.position_start),
+                "pos_end": float(r.position_end),
+                "shift": round(float(r.position_end) - float(r.position_start), 2),
+                "pressure": float(r.pressure_received),
+                "challenges_made": r.challenges_made,
+                "challenges_received": r.challenges_received,
+            }
+            for r in round_data
+        ]
+
+        sim_detail_json = None
+        if latest_sim:
+            sim_detail_json = {
+                "params": latest_sim.parameters,
+                "rounds_executed": latest_sim.total_rounds_executed,
+                "converged": latest_sim.converged,
+                "deadlock": latest_sim.deadlock_detected,
+                "execution_ms": latest_sim.execution_time_ms,
+                "predicted_outcome": float(latest_sim.predicted_outcome) if latest_sim.predicted_outcome else None,
+                "confidence": float(latest_sim.confidence_score) if latest_sim.confidence_score else None,
+                "secondary": float(latest_sim.secondary_prediction) if latest_sim.secondary_prediction else None,
+                "outcomes": [
+                    {
+                        "issue": o.issue.title,
+                        "predicted": float(o.predicted_position),
+                        "confidence": float(o.confidence_score),
+                        "median": float(o.weighted_median),
+                        "mean": float(o.weighted_mean),
+                        "coalition_pct": float(o.winning_coalition_capability),
+                        "stability": o.outcome_stability.label,
+                    }
+                    for o in prediction_outcomes
+                ],
+                "rounds": detail_round_json,
+            }
+
         return render(request, "scenarios/scenario_detail.html", {
             "scenario": scenario,
             "issues": issues,
@@ -224,6 +268,7 @@ class ScenarioDetailView(LoginRequiredMixin, View):
             "round_data": round_data,
             "position_data_json": json.dumps(position_data),
             "round_data_json": json.dumps(round_data_json),
+            "sim_detail_json": json.dumps(sim_detail_json) if sim_detail_json else "null",
         })
 
 
@@ -273,6 +318,9 @@ class IssueCreateView(LoginRequiredMixin, CreateView):
         scenario = get_object_or_404(Scenario, pk=self.kwargs["scenario_id"], owner=self.request.user)
         issue = form.save(commit=False)
         issue.scenario = scenario
+        # Auto-increment sort_order to avoid unique constraint violation
+        max_order = scenario.issues.aggregate(m=db_models.Max("sort_order"))["m"]
+        issue.sort_order = (max_order or 0) + 1 if max_order is not None else 0
         issue.save()
         messages.success(self.request, f'Issue "{issue.title}" added.')
         return redirect("scenario_detail", scenario_id=scenario.pk)
@@ -416,10 +464,11 @@ class PlayerPositionEditView(LoginRequiredMixin, View):
             },
         )
         form = PlayerPositionForm(instance=position)
-        return render(request, "admin/form.html", {
+        return render(request, "scenarios/position_form.html", {
             "form": form,
-            "page_title": f"{player.name} — {issue.title}",
-            "icon": "tune",
+            "player": player,
+            "issue": issue,
+            "scenario": scenario,
             "cancel_url": reverse("scenario_detail", args=[scenario_id]),
         })
 
@@ -447,10 +496,11 @@ class PlayerPositionEditView(LoginRequiredMixin, View):
             messages.success(request, f"Position for {player.name} on {issue.title} saved.")
             return redirect("scenario_detail", scenario_id=scenario_id)
 
-        return render(request, "admin/form.html", {
+        return render(request, "scenarios/position_form.html", {
             "form": form,
-            "page_title": f"{player.name} — {issue.title}",
-            "icon": "tune",
+            "player": player,
+            "issue": issue,
+            "scenario": scenario,
             "cancel_url": reverse("scenario_detail", args=[scenario_id]),
         })
 
@@ -478,7 +528,28 @@ class RunSimulationView(LoginRequiredMixin, View):
         except Exception as e:
             messages.error(request, f"Simulation failed: {e}")
 
-        return redirect("scenario_detail", scenario_id=scenario_id)
+        from django.http import HttpResponseRedirect
+        return HttpResponseRedirect(
+            reverse("scenario_detail", args=[scenario_id]) + "?sim=done"
+        )
+
+
+# ── AI Research Players ──
+
+class AIResearchPlayersView(LoginRequiredMixin, View):
+    """Use LLM + web search to research and set all player parameters."""
+
+    def post(self, request, scenario_id):
+        from django.http import JsonResponse
+        from apps.conversations.services import ai_research_players
+
+        scenario = get_object_or_404(Scenario, pk=scenario_id, owner=request.user)
+
+        try:
+            result = ai_research_players(scenario, request.user)
+            return JsonResponse({"message": result})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
 
 
 # ── What-If Branch ──

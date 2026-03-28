@@ -1,6 +1,7 @@
 from django.urls import path
 
 from apps.scenarios.views import (
+    AIResearchPlayersView,
     CompareSelectView,
     CompareView,
     IssueCreateView,
@@ -35,6 +36,7 @@ urlpatterns = [
     path("<uuid:scenario_id>/what-if/", WhatIfBranchView.as_view(), name="what_if_branch"),
     path("<uuid:scenario_id>/compare/", CompareSelectView.as_view(), name="compare_select"),
     path("<uuid:scenario_id>/compare/results/", CompareView.as_view(), name="compare_results"),
+    path("<uuid:scenario_id>/ai-research/", AIResearchPlayersView.as_view(), name="ai_research_players"),
 
     # Issues
     path("<uuid:scenario_id>/issues/create/", IssueCreateView.as_view(), name="issue_create"),

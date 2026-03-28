@@ -1,0 +1,442 @@
+{% extends "base.html" %}
+
+{% block title %}{{ player.name }} — {{ issue.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .pos-form-container { max-width: 750px; margin: 10px auto; padding: 0 16px; }
+    .param-card {
+        border-left: 4px solid #ccc;
+        padding: 14px 18px;
+        margin-bottom: 14px;
+        background: #fafafa;
+        border-radius: 0 8px 8px 0;
+    }
+    .param-card.param-position { border-left-color: #42a5f5; }
+    .param-card.param-capability { border-left-color: #66bb6a; }
+    .param-card.param-salience { border-left-color: #ffa726; }
+    .param-card.param-flexibility { border-left-color: #ab47bc; }
+    .param-card.param-risk { border-left-color: #ef5350; }
+    .param-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 6px;
+    }
+    .param-header .param-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        flex-shrink: 0;
+    }
+    .param-position .param-icon { background: #42a5f5; }
+    .param-capability .param-icon { background: #66bb6a; }
+    .param-salience .param-icon { background: #ffa726; }
+    .param-flexibility .param-icon { background: #ab47bc; }
+    .param-risk .param-icon { background: #ef5350; }
+    .param-title { font-weight: 600; font-size: 1rem; color: #37474f; }
+    .param-desc { font-size: 0.85rem; color: #607d8b; line-height: 1.5; margin-bottom: 8px; }
+    .param-scale {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.75rem;
+        color: #9e9e9e;
+        margin: 4px 0 2px 0;
+    }
+    .param-scale-bar {
+        height: 6px;
+        border-radius: 3px;
+        background: linear-gradient(to right, #e0e0e0, #78909c);
+        margin-bottom: 6px;
+    }
+    .param-position .param-scale-bar { background: linear-gradient(to right, #bbdefb, #1565c0); }
+    .param-capability .param-scale-bar { background: linear-gradient(to right, #c8e6c9, #2e7d32); }
+    .param-salience .param-scale-bar { background: linear-gradient(to right, #ffe0b2, #e65100); }
+    .param-flexibility .param-scale-bar { background: linear-gradient(to right, #e1bee7, #6a1b9a); }
+    .param-examples {
+        font-size: 0.78rem;
+        color: #78909c;
+        margin-top: 6px;
+        padding: 6px 10px;
+        background: #fff;
+        border-radius: 4px;
+        border: 1px solid #e8e8e8;
+    }
+    .param-examples strong { color: #455a64; }
+    .param-input { display: none; }
+    .slider-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 4px;
+    }
+    .slider-value {
+        font-size: 1.4rem;
+        font-weight: 700;
+        min-width: 52px;
+        text-align: center;
+        color: #37474f;
+        background: #fff;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 4px 8px;
+        line-height: 1;
+    }
+    .slider-track {
+        flex: 1;
+        position: relative;
+        height: 36px;
+        display: flex;
+        align-items: center;
+    }
+    .slider-track input[type="range"] {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 10px;
+        border-radius: 5px;
+        outline: none;
+        cursor: pointer;
+    }
+    .slider-track input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: #fff;
+        border: 3px solid #455a64;
+        cursor: grab;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        transition: transform 0.1s;
+    }
+    .slider-track input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+    .slider-track input[type="range"]::-webkit-slider-thumb:active { cursor: grabbing; transform: scale(1.15); }
+    .slider-track input[type="range"]::-moz-range-thumb {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: #fff;
+        border: 3px solid #455a64;
+        cursor: grab;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    .param-position .slider-track input[type="range"] { background: linear-gradient(to right, #bbdefb, #1565c0); }
+    .param-position .slider-value { border-color: #42a5f5; color: #1565c0; }
+    .param-position .slider-track input::-webkit-slider-thumb { border-color: #42a5f5; }
+    .param-capability .slider-track input[type="range"] { background: linear-gradient(to right, #c8e6c9, #2e7d32); }
+    .param-capability .slider-value { border-color: #66bb6a; color: #2e7d32; }
+    .param-capability .slider-track input::-webkit-slider-thumb { border-color: #66bb6a; }
+    .param-salience .slider-track input[type="range"] { background: linear-gradient(to right, #ffe0b2, #e65100); }
+    .param-salience .slider-value { border-color: #ffa726; color: #e65100; }
+    .param-salience .slider-track input::-webkit-slider-thumb { border-color: #ffa726; }
+    .param-flexibility .slider-track input[type="range"] { background: linear-gradient(to right, #e1bee7, #6a1b9a); }
+    .param-flexibility .slider-value { border-color: #ab47bc; color: #6a1b9a; }
+    .param-flexibility .slider-track input::-webkit-slider-thumb { border-color: #ab47bc; }
+    .risk-options { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+    .risk-option {
+        flex: 1;
+        min-width: 180px;
+        padding: 10px 12px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: border-color 0.15s, background 0.15s;
+    }
+    .risk-option:hover { border-color: #ef5350; background: #fff5f5; }
+    .risk-option.selected { border-color: #ef5350; background: #ffebee; }
+    .risk-option-title { font-weight: 600; font-size: 0.9rem; color: #37474f; }
+    .risk-option-desc { font-size: 0.78rem; color: #78909c; margin-top: 2px; line-height: 1.4; }
+    .issue-context {
+        background: #e3f2fd;
+        border-radius: 8px;
+        padding: 10px 14px;
+        margin-bottom: 16px;
+        font-size: 0.85rem;
+    }
+    .issue-context strong { color: #1565c0; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pos-form-container">
+    <!-- Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <div>
+            <h5 class="blue-grey-text text-darken-3" style="margin: 0;">
+                <i class="material-icons" style="vertical-align: middle;">tune</i>
+                {{ player.name }}
+            </h5>
+            <p class="grey-text" style="margin: 2px 0 0 0;">Set parameters for this player on the issue below</p>
+        </div>
+        <a href="{{ cancel_url }}" class="btn-small blue-grey darken-1 waves-effect">
+            <i class="material-icons left">arrow_back</i>Back
+        </a>
+    </div>
+
+    <!-- Issue context -->
+    <div class="issue-context">
+        <strong>Issue:</strong> {{ issue.title }}<br>
+        <strong>Scale:</strong> 0 = {{ issue.scale_min_label }} &nbsp;←→&nbsp; 100 = {{ issue.scale_max_label }}<br>
+        <strong>Status Quo:</strong> {{ issue.status_quo_position }} (where things stand today if no one acts)
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {% if form.errors %}
+        <div class="card-panel red lighten-4" style="padding: 10px; margin-bottom: 12px;">
+            <ul class="browser-default" style="margin: 0;">
+                {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                <li><strong>{{ field }}:</strong> {{ error }}</li>
+                {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <!-- POSITION -->
+        <div class="param-card param-position">
+            <div class="param-header">
+                <div class="param-icon"><i class="material-icons" style="font-size: 18px;">gps_fixed</i></div>
+                <span class="param-title">Position — "Where does this player want things to land?"</span>
+            </div>
+            <div class="param-desc">
+                On a scale of 0 to 100, where does <strong>{{ player.name }}</strong> want the outcome to end up?
+                Think of it as their ideal result.
+            </div>
+            <div class="param-scale">
+                <span>0 — {{ issue.scale_min_label }}</span>
+                <span>50 — Middle ground</span>
+                <span>100 — {{ issue.scale_max_label }}</span>
+            </div>
+            <div class="param-input">{{ form.position }}</div>
+            <div class="slider-row">
+                <div class="slider-value" id="position-display">{{ form.position.value|default:"50" }}</div>
+                <div class="slider-track">
+                    <input type="range" min="0" max="100" step="1" value="{{ form.position.value|default:"50" }}" data-target="id_position" data-display="position-display">
+                </div>
+            </div>
+            <div class="param-examples">
+                <strong>Examples:</strong>
+                A buyer wanting the lowest price might be <strong>15-25</strong>.
+                A seller wanting full price might be <strong>80-90</strong>.
+                Someone who wants a moderate compromise might be <strong>45-55</strong>.
+            </div>
+        </div>
+
+        <!-- CAPABILITY -->
+        <div class="param-card param-capability">
+            <div class="param-header">
+                <div class="param-icon"><i class="material-icons" style="font-size: 18px;">flash_on</i></div>
+                <span class="param-title">Capability — "How much power do they have?"</span>
+            </div>
+            <div class="param-desc">
+                How much influence or leverage does <strong>{{ player.name }}</strong> have to shape the outcome?
+                This is <em>relative</em> to other players — it's about who has more clout, not absolute power.
+            </div>
+            <div class="param-scale">
+                <span>0 — No influence</span>
+                <span>50 — Moderate</span>
+                <span>100 — Dominant</span>
+            </div>
+            <div class="param-input">{{ form.capability }}</div>
+            <div class="slider-row">
+                <div class="slider-value" id="capability-display">{{ form.capability.value|default:"50" }}</div>
+                <div class="slider-track">
+                    <input type="range" min="0" max="100" step="1" value="{{ form.capability.value|default:"50" }}" data-target="id_capability" data-display="capability-display">
+                </div>
+            </div>
+            <div class="param-examples">
+                <strong>Examples:</strong>
+                A CEO deciding a merger: <strong>75-90</strong>.
+                A mid-level manager with input but no veto: <strong>30-45</strong>.
+                Public opinion with indirect pressure: <strong>15-25</strong>.
+                In BDM's models, even the US in global scenarios typically rates <strong>70-85</strong>, not 100.
+            </div>
+        </div>
+
+        <!-- SALIENCE -->
+        <div class="param-card param-salience">
+            <div class="param-header">
+                <div class="param-icon"><i class="material-icons" style="font-size: 18px;">whatshot</i></div>
+                <span class="param-title">Salience — "How much do they care?"</span>
+            </div>
+            <div class="param-desc">
+                How important is this issue to <strong>{{ player.name }}</strong> compared to everything else on their plate?
+                A player with high power but low salience probably won't engage — they have bigger things to worry about.
+            </div>
+            <div class="param-scale">
+                <span>0 — Don't care at all</span>
+                <span>50 — Moderately important</span>
+                <span>100 — Top priority</span>
+            </div>
+            <div class="param-input">{{ form.salience }}</div>
+            <div class="slider-row">
+                <div class="slider-value" id="salience-display">{{ form.salience.value|default:"50" }}</div>
+                <div class="slider-track">
+                    <input type="range" min="0" max="100" step="1" value="{{ form.salience.value|default:"50" }}" data-target="id_salience" data-display="salience-display">
+                </div>
+            </div>
+            <div class="param-examples">
+                <strong>Examples:</strong>
+                You buying a car — this is a big purchase: <strong>85-95</strong>.
+                A sales rep — they want the commission but have other deals: <strong>60-75</strong>.
+                An online pricing site — it just publishes data, doesn't "care": <strong>15-25</strong>.
+                <br><strong>Key insight:</strong> Capability × Salience = actual influence. A powerful player who doesn't care won't move the needle.
+            </div>
+        </div>
+
+        <!-- FLEXIBILITY -->
+        <div class="param-card param-flexibility">
+            <div class="param-header">
+                <div class="param-icon"><i class="material-icons" style="font-size: 18px;">swap_horiz</i></div>
+                <span class="param-title">Flexibility — "How willing are they to compromise?"</span>
+            </div>
+            <div class="param-desc">
+                If pressured by other players, how much will <strong>{{ player.name }}</strong> budge from their preferred position?
+                High flexibility means they'll meet others halfway. Low flexibility means they'll dig in.
+            </div>
+            <div class="param-scale">
+                <span>0 — Completely rigid</span>
+                <span>50 — Somewhat flexible</span>
+                <span>100 — Fully flexible</span>
+            </div>
+            <div class="param-input">{{ form.flexibility }}</div>
+            <div class="slider-row">
+                <div class="slider-value" id="flexibility-display">{{ form.flexibility.value|default:"50" }}</div>
+                <div class="slider-track">
+                    <input type="range" min="0" max="100" step="1" value="{{ form.flexibility.value|default:"50" }}" data-target="id_flexibility" data-display="flexibility-display">
+                </div>
+            </div>
+            <div class="param-examples">
+                <strong>Examples:</strong>
+                A government with a firm policy mandate: <strong>10-20</strong>.
+                A sales manager protecting margins but willing to deal: <strong>30-45</strong>.
+                A buyer with no deadline who can walk away and come back: <strong>60-75</strong>.
+                <br><strong>Key insight:</strong> Flexible players shift position faster under pressure. Rigid players hold firm but may get isolated.
+            </div>
+        </div>
+
+        <!-- RISK PROFILE -->
+        <div class="param-card param-risk">
+            <div class="param-header">
+                <div class="param-icon"><i class="material-icons" style="font-size: 18px;">casino</i></div>
+                <span class="param-title">Risk Profile — "How do they handle uncertainty?"</span>
+            </div>
+            <div class="param-desc">
+                When facing an uncertain outcome, does <strong>{{ player.name }}</strong> play it safe, play the odds, or swing for the fences?
+                This affects how they respond to challenges from other players.
+            </div>
+
+            <div style="display: none;">{{ form.risk_profile }}</div>
+
+            <div class="risk-options">
+                <div class="risk-option" data-value="risk_averse" onclick="selectRisk(this)">
+                    <div class="risk-option-title">🛡 Risk Averse</div>
+                    <div class="risk-option-desc">
+                        <strong>Plays it safe.</strong> Would rather accept a smaller guaranteed gain than risk a loss.
+                        Avoids confrontation unless the odds are strongly in their favor.
+                        <br><br><em>Example: A sales rep who'd rather close at a lower price than risk losing the sale entirely.</em>
+                    </div>
+                </div>
+                <div class="risk-option" data-value="risk_neutral" onclick="selectRisk(this)">
+                    <div class="risk-option-title">⚖️ Risk Neutral</div>
+                    <div class="risk-option-desc">
+                        <strong>Plays the odds.</strong> Weighs potential gains and losses equally.
+                        Will challenge when the expected value is positive, regardless of variance.
+                        <br><br><em>Example: A data-driven buyer who calculates their BATNA and negotiates accordingly. Most common profile.</em>
+                    </div>
+                </div>
+                <div class="risk-option" data-value="risk_acceptant" onclick="selectRisk(this)">
+                    <div class="risk-option-title">🎲 Risk Acceptant</div>
+                    <div class="risk-option-desc">
+                        <strong>Swings for the fences.</strong> Willing to accept a higher chance of loss for the possibility of a big win.
+                        Challenges aggressively even when odds are uncertain.
+                        <br><br><em>Example: A startup founder making bold demands in an acquisition negotiation — they'll walk away from a good deal if they think a great one is possible.</em>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Submit -->
+        <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; margin-bottom: 20px;">
+            <a href="{{ cancel_url }}" class="btn-flat waves-effect">Cancel</a>
+            <button type="submit" class="btn blue-grey darken-1 waves-effect waves-light">
+                <i class="material-icons left">save</i>Save Parameters
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    M.updateTextFields();
+    M.FormSelect.init(document.querySelectorAll('select'));
+
+    // Sync range sliders with hidden form inputs
+    document.querySelectorAll('input[type="range"]').forEach(function(slider) {
+        var targetId = slider.dataset.target;
+        var displayId = slider.dataset.display;
+        var hiddenInput = document.getElementById(targetId);
+        var display = document.getElementById(displayId);
+
+        if (hiddenInput && display) {
+            // Set initial value from hidden input if it differs
+            if (hiddenInput.value) {
+                slider.value = Math.round(parseFloat(hiddenInput.value));
+                display.textContent = slider.value;
+            }
+
+            slider.addEventListener('input', function() {
+                hiddenInput.value = this.value;
+                display.textContent = this.value;
+            });
+        }
+    });
+
+    // Risk profile custom selector
+    var hiddenSelect = document.querySelector('[name="risk_profile"]');
+    if (!hiddenSelect) return;
+
+    // Highlight the currently selected option
+    var currentVal = hiddenSelect.value;
+    document.querySelectorAll('.risk-option').forEach(function(opt) {
+        // Match by checking if the option text contains the data-value keyword
+        var options = hiddenSelect.querySelectorAll('option');
+        for (var i = 0; i < options.length; i++) {
+            if (options[i].selected && options[i].text.toLowerCase().replace(/ /g, '_').indexOf(opt.dataset.value) !== -1) {
+                opt.classList.add('selected');
+            }
+        }
+    });
+});
+
+function selectRisk(el) {
+    document.querySelectorAll('.risk-option').forEach(function(o) { o.classList.remove('selected'); });
+    el.classList.add('selected');
+
+    var val = el.dataset.value;
+    var select = document.querySelector('[name="risk_profile"]');
+    if (!select) return;
+
+    // Find the option whose text matches
+    var options = select.querySelectorAll('option');
+    for (var i = 0; i < options.length; i++) {
+        var optText = options[i].text.toLowerCase().replace(/ /g, '_');
+        if (optText.indexOf(val) !== -1) {
+            select.value = options[i].value;
+            break;
+        }
+    }
+}
+</script>
+{% endblock %}
