@@ -1,0 +1,489 @@
+{% extends "base.html" %}
+{% load scenario_tags %}
+
+{% block title %}{{ scenario.title }} — Game Theory{% endblock %}
+
+{% block extra_css %}
+<style>
+    .detail-section { margin-bottom: 10px; }
+    .detail-section .card-content { padding: 12px 16px; }
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .section-header h6 { margin: 0; display: flex; align-items: center; gap: 6px; }
+    .section-header h6 .material-icons { vertical-align: middle; }
+    .card-title { display: flex !important; align-items: center; gap: 6px; margin-bottom: 6px !important; }
+    .card-title .material-icons { vertical-align: middle; }
+    .detail-section table { margin-top: 0; margin-bottom: 0; }
+    .detail-section table td, .detail-section table th { padding: 6px 8px; }
+    .status-chip { font-size: 0.8rem; padding: 2px 10px; border-radius: 12px; color: #fff; display: inline-block; }
+    .status-DRAFT { background: #78909c; }
+    .status-READY { background: #42a5f5; }
+    .status-RUNNING { background: #ffa726; }
+    .status-COMPLETED { background: #66bb6a; }
+    .status-ARCHIVED { background: #bdbdbd; }
+    .quality-score { font-size: 2rem; font-weight: bold; }
+    .quality-good { color: #66bb6a; }
+    .quality-ok { color: #ffa726; }
+    .quality-poor { color: #ef5350; }
+    .position-table { font-size: 0.85rem; }
+    .position-table th { white-space: nowrap; }
+    .action-btn { margin: 2px; }
+    /* Stakeholder Landscape Map */
+    #stakeholder-map { width: 100%; height: 320px; position: relative; background: #fafafa; border: 1px solid #e0e0e0; border-radius: 4px; }
+    .map-dot { position: absolute; border-radius: 50%; border: 2px solid rgba(0,0,0,0.3); cursor: pointer; transition: transform 0.2s; }
+    .map-dot:hover { transform: scale(1.3); z-index: 10; }
+    .map-tooltip { position: absolute; background: #333; color: #fff; padding: 6px 10px; border-radius: 4px; font-size: 0.8rem; pointer-events: none; z-index: 20; white-space: nowrap; display: none; }
+    .map-axis-label { position: absolute; color: #9e9e9e; font-size: 0.75rem; }
+    /* Prediction results */
+    .prediction-card { border-left: 4px solid #66bb6a; }
+    .prediction-card.fragile { border-left-color: #ffa726; }
+    .prediction-card.deadlocked { border-left-color: #ef5350; }
+    /* Round timeline chart */
+    #timeline-chart { width: 100%; height: 250px; }
+    /* Toolbar */
+    .scenario-toolbar {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 4px;
+        align-items: center;
+        padding: 4px 8px;
+        background: #f5f5f5;
+        border-radius: 6px;
+        margin-bottom: 8px;
+        overflow-x: auto;
+    }
+    .scenario-toolbar .toolbar-spacer { flex: 1; min-width: 8px; }
+    .scenario-toolbar form { margin: 0; display: inline; }
+    .tb-btn {
+        display: inline-flex; align-items: center; gap: 4px;
+        padding: 0 10px; height: 28px; line-height: 28px;
+        border-radius: 4px; font-size: 0.78rem; font-weight: 500;
+        color: #fff; white-space: nowrap; cursor: pointer; border: none;
+        text-decoration: none;
+    }
+    .tb-btn i.material-icons { font-size: 16px; }
+    .tb-btn.bg-edit { background: #546e7a; }
+    .tb-btn.bg-dup { background: #78909c; }
+    .tb-btn.bg-ver { background: #90a4ae; }
+    .tb-btn.bg-ai { background: #00897b; }
+    .tb-btn.bg-wif { background: #ef6c00; }
+    .tb-btn.bg-cmp { background: #8e24aa; }
+    .tb-btn.bg-del { background: #e53935; }
+    .tb-btn:hover { opacity: 0.85; }
+    /* Responsive */
+    @media only screen and (max-width: 600px) {
+        #stakeholder-map { height: 280px; }
+        .position-table { font-size: 0.75rem; }
+        .scenario-toolbar { justify-content: center; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 10px;">
+    <!-- Toolbar -->
+    <div class="scenario-toolbar">
+        <a href="{% url 'scenario_edit' scenario.pk %}" class="tb-btn bg-edit" title="Edit scenario"><i class="material-icons">edit</i>Edit</a>
+        <form method="post" action="{% url 'scenario_duplicate' scenario.pk %}">{% csrf_token %}<button type="submit" class="tb-btn bg-dup" title="Duplicate scenario"><i class="material-icons">content_copy</i>Duplicate</button></form>
+        <a href="{% url 'scenario_versions' scenario.pk %}" class="tb-btn bg-ver" title="Version history"><i class="material-icons">history</i>Versions</a>
+        <a href="{% url 'modifier_chat_new' scenario.pk %}" class="tb-btn bg-ai" title="AI-assisted modifications"><i class="material-icons">smart_toy</i>AI Modify</a>
+        <form method="post" action="{% url 'what_if_branch' scenario.pk %}">{% csrf_token %}<button type="submit" class="tb-btn bg-wif" title="Create what-if branch"><i class="material-icons">call_split</i>What-If</button></form>
+        <a href="{% url 'compare_select' scenario.pk %}" class="tb-btn bg-cmp" title="Compare versions"><i class="material-icons">compare_arrows</i>Compare</a>
+        <div class="toolbar-spacer"></div>
+        <a href="{% url 'scenario_delete' scenario.pk %}" class="tb-btn bg-del" title="Delete scenario"
+           onclick="return confirm('Are you sure you want to delete this scenario?');"><i class="material-icons">delete</i></a>
+    </div>
+
+    <!-- Scenario Title (full width) -->
+    <h5 class="blue-grey-text text-darken-3" style="margin: 10px 0 2px 0;">{{ scenario.title }}</h5>
+
+    <!-- Status badges (full width) -->
+    <p style="margin: 0 0 8px 0;">
+        <span class="status-chip status-{{ scenario.status.code }}">{{ scenario.status.label }}</span>
+        <span class="grey-text" style="margin-left: 8px;">{{ scenario.scenario_type.label }}</span>
+        {% if scenario.version_number > 1 %}
+        <span class="grey-text text-lighten-1" style="margin-left: 8px;">v{{ scenario.version_number }}</span>
+        {% endif %}
+    </p>
+
+    <!-- Description + Data Quality -->
+    <div style="display: flex; gap: 12px; margin-bottom: 10px; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 250px;">
+            {% if scenario.description %}
+            <p class="grey-text" style="font-size: 0.9rem; margin: 0;">{{ scenario.description }}</p>
+            {% endif %}
+        </div>
+        <div style="flex: 0 0 auto; min-width: 300px;">
+            <div class="card" style="margin: 0;">
+                <div class="card-content" style="padding: 12px 16px;">
+                    <span class="card-title" style="font-size: 1rem;">
+                        <i class="material-icons">assessment</i> Data Quality
+                    </span>
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <div style="text-align: center;">
+                            <span class="quality-score {% if quality.score >= 70 %}quality-good{% elif quality.score >= 40 %}quality-ok{% else %}quality-poor{% endif %}">
+                                {{ quality.score }}
+                            </span>
+                            <br><small class="grey-text">/ 100</small>
+                        </div>
+                        <div style="font-size: 0.85rem; flex: 1;">
+                            <div>Completeness: <strong>{{ quality.completeness }}%</strong></div>
+                            <div>Diversity: <strong>{{ quality.diversity }}%</strong></div>
+                            <div>Consistency: <strong>{{ quality.consistency }}%</strong></div>
+                            <div>Granularity: <strong>{{ quality.granularity }}%</strong></div>
+                        </div>
+                    </div>
+                    {% if quality.warnings %}
+                    <div style="margin-top: 8px;">
+                        {% for w in quality.warnings %}
+                        <p class="orange-text" style="font-size: 0.8rem; margin: 2px 0;">
+                            <i class="material-icons tiny">warning</i> {{ w }}
+                        </p>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if messages %}
+    {% for message in messages %}
+    <div class="card-panel {% if message.tags == 'error' %}red{% else %}green{% endif %} lighten-4" style="padding: 10px; margin-top: 10px;">
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <!-- Issues (full width) -->
+    <div class="card detail-section">
+        <div class="card-content">
+            <div class="section-header">
+                <h6 class="blue-grey-text"><i class="material-icons" style="vertical-align: middle;">topic</i> Issues</h6>
+                <a href="{% url 'issue_create' scenario.pk %}" class="btn-small blue-grey darken-1 waves-effect">
+                    <i class="material-icons left">add</i>Add Issue
+                </a>
+            </div>
+            {% if issues %}
+            <div style="overflow-x: auto;">
+            <table class="striped" style="font-size: 0.85rem;">
+                <thead>
+                    <tr>
+                        <th>Issue</th>
+                        <th>Scale</th>
+                        <th>Status Quo</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for issue in issues %}
+                    <tr>
+                        <td><strong>{{ issue.title }}</strong></td>
+                        <td style="font-size: 0.8rem;">{{ issue.scale_min_label }} (0) — {{ issue.scale_max_label }} (100)</td>
+                        <td>{{ issue.status_quo_position }}</td>
+                        <td style="white-space: nowrap;">
+                            <a href="{% url 'issue_edit' scenario.pk issue.pk %}" class="btn-flat btn-small waves-effect" title="Edit"><i class="material-icons">edit</i></a>
+                            <a href="{% url 'issue_delete' scenario.pk issue.pk %}" class="btn-flat btn-small waves-effect red-text" title="Delete"><i class="material-icons">delete</i></a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+            {% else %}
+            <p class="grey-text center-align">No issues defined. Add at least one issue to begin.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Players (full width) -->
+    <div class="card detail-section">
+        <div class="card-content">
+            <div class="section-header">
+                <h6 class="blue-grey-text"><i class="material-icons" style="vertical-align: middle;">groups</i> Players</h6>
+                <a href="{% url 'player_create' scenario.pk %}" class="btn-small blue-grey darken-1 waves-effect">
+                    <i class="material-icons left">person_add</i>Add Player
+                </a>
+            </div>
+            {% if players %}
+            <div style="overflow-x: auto;">
+            <table class="striped" style="font-size: 0.85rem;">
+                <thead>
+                    <tr>
+                        <th>Player</th>
+                        <th>Type</th>
+                        {% for issue in issues %}
+                        <th title="{{ issue.title }}" style="max-width: 120px; overflow: hidden; text-overflow: ellipsis;">{{ issue.title|truncatewords:3 }}</th>
+                        {% endfor %}
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for player in players %}
+                    <tr>
+                        <td><strong>{{ player.name }}</strong></td>
+                        <td>{{ player.player_type.label }}</td>
+                        {% for pp_info in player.position_display %}
+                        <td>
+                            {% if pp_info.has_position %}
+                            <a href="{{ pp_info.edit_url }}"
+                               title="P:{{ pp_info.position }} C:{{ pp_info.capability }} S:{{ pp_info.salience }}"
+                               class="blue-grey-text">
+                                {{ pp_info.position }}
+                            </a>
+                            {% else %}
+                            <a href="{{ pp_info.edit_url }}"
+                               class="orange-text" title="Set position">
+                                <i class="material-icons tiny">add_circle</i>
+                            </a>
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                        <td style="white-space: nowrap;">
+                            <a href="{% url 'player_edit' scenario.pk player.pk %}" class="btn-flat btn-small waves-effect" title="Edit"><i class="material-icons">edit</i></a>
+                            <a href="{% url 'player_delete' scenario.pk player.pk %}" class="btn-flat btn-small waves-effect red-text" title="Delete"><i class="material-icons">delete</i></a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+            {% else %}
+            <p class="grey-text center-align">No players defined. Add at least 3 players to run a simulation.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Stakeholder Landscape Map (full width) -->
+    <div class="card detail-section">
+        <div class="card-content">
+            <span class="card-title" style="font-size: 1rem;">
+                <i class="material-icons">scatter_plot</i> Stakeholder Landscape
+            </span>
+            {% if players and issues %}
+            <div id="stakeholder-map">
+                <div class="map-axis-label" style="bottom: 2px; left: 50%; transform: translateX(-50%);">Position (0–100)</div>
+                <div class="map-axis-label" style="top: 50%; left: 2px; transform: rotate(-90deg) translateX(-50%); transform-origin: left center;">Capability</div>
+                <div class="map-tooltip" id="map-tooltip"></div>
+            </div>
+            <div style="margin-top: 8px; font-size: 0.75rem; color: #9e9e9e; text-align: center;">
+                X = Position &middot; Y = Capability &middot; Size = Salience
+            </div>
+            {% else %}
+            <p class="grey-text center-align">Add issues and players to see the stakeholder map.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Prediction Results (full width) -->
+    {% if latest_sim %}
+    <div class="card detail-section prediction-card {% if latest_sim.deadlock_detected %}deadlocked{% elif latest_sim.confidence_score and latest_sim.confidence_score < 0.5 %}fragile{% endif %}">
+        <div class="card-content">
+            <span class="card-title" style="font-size: 1rem;">
+                <i class="material-icons">insights</i> Prediction Results
+            </span>
+            <div class="row" style="margin-bottom: 0;">
+                <div class="col s6 center-align">
+                    <span style="font-size: 2rem; font-weight: bold; color: #455a64;">{{ latest_sim.predicted_outcome }}</span>
+                    <br><small class="grey-text">Predicted Outcome</small>
+                </div>
+                <div class="col s6 center-align">
+                    <span style="font-size: 2rem; font-weight: bold; color: #455a64;">
+                        {% widthratio latest_sim.confidence_score 1 100 %}%
+                    </span>
+                    <br><small class="grey-text">Confidence</small>
+                </div>
+            </div>
+            <div style="margin-top: 12px; font-size: 0.85rem;">
+                <p><strong>Rounds:</strong> {{ latest_sim.total_rounds_executed }}
+                    {% if latest_sim.converged %}<span class="green-text">(converged)</span>{% endif %}
+                    {% if latest_sim.deadlock_detected %}<span class="red-text">(deadlock detected)</span>{% endif %}
+                </p>
+                <p><strong>Secondary (mean):</strong> {{ latest_sim.secondary_prediction }}</p>
+                <p><strong>Execution time:</strong> {{ latest_sim.execution_time_ms }}ms</p>
+            </div>
+            {% for po in prediction_outcomes %}
+            <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee;">
+                <strong>{{ po.issue.title }}</strong>
+                <div style="font-size: 0.85rem;">
+                    Prediction: <strong>{{ po.predicted_position }}</strong>
+                    ({{ po.outcome_stability.label }})
+                    &middot; Coalition: {{ po.winning_coalition_capability }}%
+                </div>
+            </div>
+            {% endfor %}
+            <div style="margin-top: 16px; text-align: center; display: flex; justify-content: center; gap: 8px;">
+                <a href="{% url 'simulation_analysis' scenario.pk %}" class="btn blue-grey darken-2 waves-effect waves-light">
+                    <i class="material-icons left">insights</i>AI Strategic Analysis
+                </a>
+                <a href="{% url 'analysis_history' scenario.pk %}" class="btn blue-grey lighten-1 waves-effect waves-light">
+                    <i class="material-icons left">history</i>Analysis History
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Negotiation Timeline (full width) -->
+    {% if round_data %}
+    <div class="card detail-section">
+        <div class="card-content">
+            <span class="card-title" style="font-size: 1rem;">
+                <i class="material-icons">timeline</i> Negotiation Timeline
+            </span>
+            <canvas id="timeline-chart"></canvas>
+        </div>
+    </div>
+    {% endif %}
+
+    {% endif %}
+
+    <!-- Run Simulation (last on page) -->
+    <div class="card detail-section">
+        <div class="card-content center-align">
+            {% if validation_errors %}
+            <p class="orange-text" style="font-size: 0.9rem;">
+                <i class="material-icons tiny">warning</i>
+                Cannot run simulation: {{ validation_errors|join:", " }}
+            </p>
+            {% endif %}
+            <form method="post" action="{% url 'run_simulation' scenario.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-large blue-grey darken-2 waves-effect waves-light"
+                        {% if validation_errors %}disabled{% endif %}>
+                    <i class="material-icons left">play_arrow</i>Run Simulation
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    // ── Stakeholder Landscape Map ──
+    var mapEl = document.getElementById('stakeholder-map');
+    if (!mapEl) return;
+
+    var tooltip = document.getElementById('map-tooltip');
+    var positions = {{ position_data_json|safe }};
+    var colors = ['#42a5f5', '#66bb6a', '#ffa726', '#ef5350', '#ab47bc', '#26c6da', '#8d6e63', '#78909c', '#ec407a', '#5c6bc0'];
+
+    var padding = 30;
+    var mapW = mapEl.offsetWidth - padding * 2;
+    var mapH = mapEl.offsetHeight - padding * 2;
+
+    positions.forEach(function(p, idx) {
+        var dot = document.createElement('div');
+        dot.className = 'map-dot';
+        var size = Math.max(16, Math.min(60, p.salience * 0.6));
+        dot.style.width = size + 'px';
+        dot.style.height = size + 'px';
+        dot.style.left = (padding + (p.position / 100) * mapW - size / 2) + 'px';
+        dot.style.bottom = (padding + (p.capability / 100) * mapH - size / 2) + 'px';
+        dot.style.background = colors[idx % colors.length];
+        dot.style.opacity = '0.8';
+        dot.dataset.name = p.name;
+        dot.dataset.position = p.position;
+        dot.dataset.capability = p.capability;
+        dot.dataset.salience = p.salience;
+
+        dot.addEventListener('mouseenter', function(e) {
+            tooltip.textContent = p.name + ' — Pos: ' + p.position + '  Cap: ' + p.capability + '  Sal: ' + p.salience;
+            tooltip.style.display = 'block';
+            tooltip.style.left = (e.offsetX + 15) + 'px';
+            tooltip.style.bottom = (mapH - e.offsetY + 15) + 'px';
+        });
+        dot.addEventListener('mousemove', function(e) {
+            var rect = mapEl.getBoundingClientRect();
+            tooltip.style.left = (e.clientX - rect.left + 15) + 'px';
+            tooltip.style.top = (e.clientY - rect.top - 30) + 'px';
+            tooltip.style.bottom = 'auto';
+        });
+        dot.addEventListener('mouseleave', function() {
+            tooltip.style.display = 'none';
+        });
+
+        mapEl.appendChild(dot);
+    });
+
+    // ── Negotiation Timeline (Canvas) ──
+    var timelineCanvas = document.getElementById('timeline-chart');
+    if (!timelineCanvas) return;
+
+    var roundData = {{ round_data_json|safe }};
+    if (!roundData || roundData.length === 0) return;
+
+    // Group by player
+    var playerMap = {};
+    roundData.forEach(function(r) {
+        if (!playerMap[r.player_name]) playerMap[r.player_name] = [];
+        playerMap[r.player_name].push(r);
+    });
+
+    var ctx = timelineCanvas.getContext('2d');
+    var W = timelineCanvas.parentElement.offsetWidth - 32;
+    var H = 280;
+    timelineCanvas.width = W;
+    timelineCanvas.height = H;
+
+    var maxRound = Math.max.apply(null, roundData.map(function(r) { return r.round_number; }));
+    var chartPadding = { top: 20, right: 20, bottom: 30, left: 40 };
+    var chartW = W - chartPadding.left - chartPadding.right;
+    var chartH = H - chartPadding.top - chartPadding.bottom;
+
+    // Axes
+    ctx.strokeStyle = '#e0e0e0';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(chartPadding.left, chartPadding.top);
+    ctx.lineTo(chartPadding.left, H - chartPadding.bottom);
+    ctx.lineTo(W - chartPadding.right, H - chartPadding.bottom);
+    ctx.stroke();
+
+    // Y-axis labels
+    ctx.fillStyle = '#9e9e9e';
+    ctx.font = '10px sans-serif';
+    ctx.textAlign = 'right';
+    for (var y = 0; y <= 100; y += 25) {
+        var yPos = H - chartPadding.bottom - (y / 100) * chartH;
+        ctx.fillText(y, chartPadding.left - 5, yPos + 3);
+        ctx.strokeStyle = '#f5f5f5';
+        ctx.beginPath();
+        ctx.moveTo(chartPadding.left, yPos);
+        ctx.lineTo(W - chartPadding.right, yPos);
+        ctx.stroke();
+    }
+
+    // X-axis labels
+    ctx.textAlign = 'center';
+    for (var x = 1; x <= maxRound; x++) {
+        var xPos = chartPadding.left + ((x - 0.5) / maxRound) * chartW;
+        ctx.fillText('R' + x, xPos, H - chartPadding.bottom + 15);
+    }
+
+    // Draw lines per player
+    var playerNames = Object.keys(playerMap);
+    playerNames.forEach(function(name, idx) {
+        var data = playerMap[name].sort(function(a, b) { return a.round_number - b.round_number; });
+        ctx.strokeStyle = colors[idx % colors.length];
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        data.forEach(function(d, i) {
+            var x = chartPadding.left + ((d.round_number - 0.5) / maxRound) * chartW;
+            var y = H - chartPadding.bottom - (d.position_end / 100) * chartH;
+            if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+
+        // Legend dot
+        var legendY = chartPadding.top + idx * 14;
+        ctx.fillStyle = colors[idx % colors.length];
+        ctx.fillRect(W - chartPadding.right - 80, legendY, 8, 8);
+        ctx.fillStyle = '#333';
+        ctx.font = '9px sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(name.substring(0, 12), W - chartPadding.right - 68, legendY + 8);
+    });
+})();
+</script>
+{% endblock %}

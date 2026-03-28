@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Game Theory — Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stat-card { text-align: center; padding: 16px; }
+    .stat-number { font-size: 2.2rem; font-weight: bold; color: #455a64; }
+    .stat-label { font-size: 0.85rem; color: #78909c; }
+    .status-chip { font-size: 0.8rem; padding: 2px 10px; border-radius: 12px; color: #fff; display: inline-block; }
+    .status-DRAFT { background: #78909c; }
+    .status-READY { background: #42a5f5; }
+    .status-RUNNING { background: #ffa726; }
+    .status-COMPLETED { background: #66bb6a; }
+    .status-ARCHIVED { background: #bdbdbd; }
+    .quick-card { transition: box-shadow 0.2s; }
+    .quick-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="section">
+    <div class="container">
+        <h4 class="blue-grey-text text-darken-3" style="margin-top: 1.5rem;">
+            <i class="material-icons" style="vertical-align: middle;">dashboard</i>
+            Game Theory Dashboard
+        </h4>
+        <p class="grey-text text-darken-1">Welcome{% if user.first_name %}, {{ user.first_name }}{% endif %}.</p>
+
+        {% if user.is_authenticated %}
+        <!-- Stats Row -->
+        <div class="row" style="margin-top: 1.5rem;">
+            <div class="col s6 m3">
+                <div class="card-panel stat-card hoverable">
+                    <div class="stat-number">{{ total_scenarios|default:"0" }}</div>
+                    <div class="stat-label">Scenarios</div>
+                </div>
+            </div>
+            <div class="col s6 m3">
+                <div class="card-panel stat-card hoverable">
+                    <div class="stat-number">{{ completed_sims|default:"0" }}</div>
+                    <div class="stat-label">Simulations Run</div>
+                </div>
+            </div>
+            <div class="col s6 m3">
+                <div class="card-panel stat-card hoverable">
+                    <a href="{% url 'chat_new' %}" style="display: block;">
+                        <i class="material-icons medium blue-grey-text">add_circle_outline</i>
+                        <div class="stat-label" style="margin-top: 4px;">New Scenario</div>
+                    </a>
+                </div>
+            </div>
+            <div class="col s6 m3">
+                <div class="card-panel stat-card hoverable">
+                    <a href="{% url 'scenario_list' %}" style="display: block;">
+                        <i class="material-icons medium blue-grey-text">list_alt</i>
+                        <div class="stat-label" style="margin-top: 4px;">All Scenarios</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Scenarios -->
+        {% if recent_scenarios %}
+        <h5 class="blue-grey-text text-darken-2" style="font-size: 1.2rem; margin-top: 1.5rem;">Recent Scenarios</h5>
+        <div class="row">
+            {% for scenario in recent_scenarios %}
+            <div class="col s12 m6 l4">
+                <div class="card quick-card">
+                    <div class="card-content" style="padding: 16px;">
+                        <a href="{% url 'scenario_detail' scenario.pk %}" class="card-title blue-grey-text text-darken-3" style="font-size: 1rem;">
+                            {{ scenario.title }}
+                        </a>
+                        <p>
+                            <span class="status-chip status-{{ scenario.status.code }}">{{ scenario.status.label }}</span>
+                            <span class="grey-text" style="font-size: 0.8rem; margin-left: 6px;">{{ scenario.scenario_type.label }}</span>
+                        </p>
+                        <p class="grey-text text-lighten-1" style="font-size: 0.8rem; margin-top: 6px;">
+                            Updated {{ scenario.updated_at|timesince }} ago
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <!-- Getting Started -->
+        <div class="row" style="margin-top: 2rem;">
+            <div class="col s12 m8 offset-m2">
+                <div class="card-panel center-align">
+                    <i class="material-icons large blue-grey-text text-lighten-1">psychology</i>
+                    <h5 class="blue-grey-text">Get Started with Game Theory</h5>
+                    <p class="grey-text">
+                        Create your first prediction scenario to start modeling strategic outcomes
+                        using the BDM expected utility framework.
+                    </p>
+                    <a href="{% url 'chat_new' %}" class="btn-large blue-grey darken-2 waves-effect waves-light" style="margin-top: 12px;">
+                        <i class="material-icons left">add</i>Create Your First Scenario
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <!-- Not authenticated -->
+        <div class="row" style="margin-top: 2rem;">
+            <div class="col s12 m8 offset-m2 center-align">
+                <i class="material-icons large blue-grey-text text-lighten-1">psychology</i>
+                <h5 class="blue-grey-text">AI-Powered Prediction Engine</h5>
+                <p class="grey-text flow-text">
+                    Predict outcomes of strategic scenarios using Bruce Bueno de Mesquita's
+                    expected utility model. Engineer preferred results with data-driven strategy.
+                </p>
+                <div style="margin-top: 1.5rem;">
+                    <a href="{% url 'register' %}" class="btn-large blue-grey darken-2 waves-effect waves-light" style="margin-right: 1rem;">
+                        <i class="material-icons left">person_add</i>Get Started
+                    </a>
+                    <a href="{% url 'login' %}" class="btn-large blue-grey lighten-1 waves-effect waves-light">
+                        <i class="material-icons left">login</i>Sign In
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

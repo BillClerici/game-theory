@@ -1,0 +1,293 @@
+{% extends "base.html" %}
+
+{% block title %}Comparison — {{ scenario.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .compare-container { margin-top: 10px; }
+    .compare-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .compare-table th, .compare-table td { padding: 6px 10px; border: 1px solid #e0e0e0; text-align: center; }
+    .compare-table th { background: #f5f5f5; position: sticky; top: 0; z-index: 2; }
+    .compare-table th.row-header, .compare-table td.row-header { text-align: left; font-weight: 500; background: #fafafa; white-space: nowrap; }
+    .compare-table td.changed { background: #fff8e1; }
+    .compare-table td.best { background: #e8f5e9; font-weight: bold; }
+    .compare-table td.worst { background: #ffebee; }
+    .version-col-header { font-size: 0.8rem; }
+    .version-col-header .v-label { font-weight: bold; display: block; }
+    .version-col-header .v-meta { color: #9e9e9e; font-size: 0.75rem; }
+    .outcome-big { font-size: 1.5rem; font-weight: bold; color: #455a64; }
+    .delta-positive { color: #66bb6a; }
+    .delta-negative { color: #ef5350; }
+    .delta-neutral { color: #9e9e9e; }
+    .section-label { background: #455a64; color: #fff; padding: 6px 10px; font-weight: 500; font-size: 0.85rem; }
+    .map-overlay-container { position: relative; width: 100%; height: 320px; background: #fafafa; border: 1px solid #e0e0e0; border-radius: 4px; }
+    .map-overlay-dot { position: absolute; border-radius: 50%; border: 2px solid; cursor: pointer; transition: transform 0.2s; opacity: 0.7; }
+    .map-overlay-dot:hover { transform: scale(1.4); opacity: 1; z-index: 10; }
+    .map-legend { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin-top: 8px; font-size: 0.8rem; }
+    .map-legend-item { display: flex; align-items: center; gap: 4px; }
+    .map-legend-dot { width: 12px; height: 12px; border-radius: 50%; }
+    @media only screen and (max-width: 600px) {
+        .compare-table { font-size: 0.75rem; }
+        .compare-table th, .compare-table td { padding: 4px 6px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container compare-container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <div>
+            <h5 class="blue-grey-text text-darken-3" style="margin: 0;">
+                <i class="material-icons" style="vertical-align: middle;">compare_arrows</i>
+                Scenario Comparison
+            </h5>
+            <p class="grey-text" style="margin: 2px 0 0 0;">{{ scenario.title }}</p>
+        </div>
+        <div style="display: flex; gap: 6px;">
+            <a href="{% url 'compare_select' scenario.pk %}" class="btn-small blue-grey lighten-1 waves-effect">
+                <i class="material-icons left">edit</i>Change Selection
+            </a>
+            <a href="{% url 'scenario_detail' scenario.pk %}" class="btn-small blue-grey darken-1 waves-effect">
+                <i class="material-icons left">arrow_back</i>Back
+            </a>
+        </div>
+    </div>
+
+    <!-- Outcome Summary -->
+    <div class="card">
+        <div class="card-content" style="padding: 12px 16px;">
+            <span class="card-title" style="font-size: 1rem; display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                <i class="material-icons">insights</i> Outcome Summary
+            </span>
+            <div style="overflow-x: auto;">
+            <table class="compare-table">
+                <thead>
+                    <tr>
+                        <th class="row-header">Metric</th>
+                        {% for sc in comparison.scenarios %}
+                        <th>
+                            <div class="version-col-header">
+                                <span class="v-label">{{ sc.label }}</span>
+                                <span class="v-meta">{{ sc.status }}</span>
+                            </div>
+                        </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="row-header">Predicted Outcome</td>
+                        {% for sc in comparison.scenarios %}
+                        <td>
+                            {% if sc.simulation %}
+                            <span class="outcome-big">{{ sc.simulation.predicted_outcome|default:"—" }}</span>
+                            {% else %}
+                            <span class="grey-text">No sim</span>
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="row-header">Confidence</td>
+                        {% for sc in comparison.scenarios %}
+                        <td>{% if sc.simulation.confidence %}{{ sc.simulation.confidence }}{% else %}—{% endif %}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="row-header">Rounds</td>
+                        {% for sc in comparison.scenarios %}
+                        <td>{% if sc.simulation %}{{ sc.simulation.rounds }}{% else %}—{% endif %}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="row-header">Converged</td>
+                        {% for sc in comparison.scenarios %}
+                        <td>
+                            {% if sc.simulation %}
+                                {% if sc.simulation.converged %}<i class="material-icons tiny green-text">check</i>{% else %}<i class="material-icons tiny red-text">close</i>{% endif %}
+                            {% else %}—{% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="row-header">Deadlock</td>
+                        {% for sc in comparison.scenarios %}
+                        <td>
+                            {% if sc.simulation %}
+                                {% if sc.simulation.deadlock %}<i class="material-icons tiny red-text">warning</i>{% else %}<i class="material-icons tiny green-text">check</i>{% endif %}
+                            {% else %}—{% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                </tbody>
+            </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Parameter Differences -->
+    {% if comparison.player_diffs %}
+    <div class="card">
+        <div class="card-content" style="padding: 12px 16px;">
+            <span class="card-title" style="font-size: 1rem; display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                <i class="material-icons">swap_horiz</i> Parameter Differences
+            </span>
+            <p class="grey-text" style="font-size: 0.8rem; margin-bottom: 8px;">Only showing parameters that changed between versions. Yellow = changed value.</p>
+            <div style="overflow-x: auto;">
+            <table class="compare-table">
+                <thead>
+                    <tr>
+                        <th class="row-header">Player</th>
+                        <th class="row-header">Issue</th>
+                        <th class="row-header">Param</th>
+                        {% for sc in comparison.scenarios %}
+                        <th><div class="version-col-header"><span class="v-label">{{ sc.label }}</span></div></th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody id="diff-tbody"></tbody>
+            </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Overlaid Stakeholder Map -->
+    <div class="card">
+        <div class="card-content" style="padding: 12px 16px;">
+            <span class="card-title" style="font-size: 1rem; display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                <i class="material-icons">scatter_plot</i> Stakeholder Positions Overlay
+            </span>
+            <div class="map-overlay-container" id="overlay-map">
+            </div>
+            <div class="map-legend" id="map-legend"></div>
+            <div style="margin-top: 4px; font-size: 0.75rem; color: #9e9e9e; text-align: center;">
+                X = Position &middot; Y = Capability &middot; Size = Salience &middot; Color = Version
+            </div>
+        </div>
+    </div>
+
+    <!-- Per-Issue Outcome Details -->
+    {% for issue_title in comparison.issues %}
+    <div class="card">
+        <div class="card-content" style="padding: 12px 16px;">
+            <span class="card-title" style="font-size: 1rem; display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                <i class="material-icons">topic</i> {{ issue_title }}
+            </span>
+            <div style="overflow-x: auto;">
+            <table class="compare-table">
+                <thead>
+                    <tr>
+                        <th class="row-header">Player</th>
+                        <th class="row-header">Param</th>
+                        {% for sc in comparison.scenarios %}
+                        <th><div class="version-col-header"><span class="v-label">{{ sc.label }}</span></div></th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody id="issue-{{ forloop.counter0 }}-tbody"></tbody>
+            </table>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    var data = {{ comparison_json|safe }};
+    var versionColors = ['#42a5f5', '#66bb6a', '#ffa726', '#ef5350'];
+
+    // ── Parameter Differences Table ──
+    var diffTbody = document.getElementById('diff-tbody');
+    if (diffTbody && data.player_diffs) {
+        data.player_diffs.forEach(function(diff) {
+            var params = ['position', 'capability', 'salience', 'flexibility'];
+            params.forEach(function(param) {
+                var values = diff.values.map(function(v) { return v ? v[param] : null; });
+                var nonNull = values.filter(function(v) { return v !== null; });
+                if (nonNull.length < 2) return;
+                var allSame = nonNull.every(function(v) { return v === nonNull[0]; });
+                if (allSame) return;
+
+                var row = '<tr>';
+                row += '<td class="row-header">' + diff.player + '</td>';
+                row += '<td class="row-header">' + diff.issue + '</td>';
+                row += '<td class="row-header">' + param + '</td>';
+                values.forEach(function(v, i) {
+                    var cls = '';
+                    if (v !== null && nonNull.length > 1 && v !== nonNull[0]) cls = ' class="changed"';
+                    row += '<td' + cls + '>' + (v !== null ? v : '—') + '</td>';
+                });
+                row += '</tr>';
+                diffTbody.innerHTML += row;
+            });
+        });
+    }
+
+    // ── Per-Issue Tables ──
+    data.issues.forEach(function(issueTitle, issueIdx) {
+        var tbody = document.getElementById('issue-' + issueIdx + '-tbody');
+        if (!tbody) return;
+
+        data.players.forEach(function(playerName) {
+            var params = ['position', 'capability', 'salience', 'flexibility', 'risk_profile'];
+            params.forEach(function(param) {
+                var values = data.scenarios.map(function(sc) {
+                    var pos = (sc.positions[playerName] || {})[issueTitle];
+                    return pos ? pos[param] : null;
+                });
+                var row = '<tr>';
+                row += '<td class="row-header">' + (param === 'position' ? playerName : '') + '</td>';
+                row += '<td class="row-header">' + param + '</td>';
+                var nonNull = values.filter(function(v) { return v !== null; });
+                var hasChange = nonNull.length > 1 && !nonNull.every(function(v) { return v === nonNull[0]; });
+                values.forEach(function(v) {
+                    var cls = (hasChange && v !== null && v !== nonNull[0]) ? ' class="changed"' : '';
+                    row += '<td' + cls + '>' + (v !== null ? v : '—') + '</td>';
+                });
+                row += '</tr>';
+                tbody.innerHTML += row;
+            });
+        });
+    });
+
+    // ── Overlay Stakeholder Map ──
+    var mapEl = document.getElementById('overlay-map');
+    var legendEl = document.getElementById('map-legend');
+    if (!mapEl) return;
+
+    var padding = 30;
+    var mapW = mapEl.offsetWidth - padding * 2;
+    var mapH = mapEl.offsetHeight - padding * 2;
+
+    data.scenarios.forEach(function(sc, scIdx) {
+        var color = versionColors[scIdx % versionColors.length];
+
+        // Legend
+        legendEl.innerHTML += '<div class="map-legend-item"><div class="map-legend-dot" style="background:' + color + ';"></div>' + sc.label + '</div>';
+
+        data.players.forEach(function(playerName) {
+            data.issues.forEach(function(issueTitle) {
+                var pos = (sc.positions[playerName] || {})[issueTitle];
+                if (!pos) return;
+
+                var dot = document.createElement('div');
+                dot.className = 'map-overlay-dot';
+                var size = Math.max(12, Math.min(50, pos.salience * 0.5));
+                dot.style.width = size + 'px';
+                dot.style.height = size + 'px';
+                dot.style.left = (padding + (pos.position / 100) * mapW - size / 2) + 'px';
+                dot.style.bottom = (padding + (pos.capability / 100) * mapH - size / 2) + 'px';
+                dot.style.background = color;
+                dot.style.borderColor = color;
+                dot.title = sc.label + ': ' + playerName + ' — Pos:' + pos.position + ' Cap:' + pos.capability + ' Sal:' + pos.salience;
+                mapEl.appendChild(dot);
+            });
+        });
+    });
+})();
+</script>
+{% endblock %}

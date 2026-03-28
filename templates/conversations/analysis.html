@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block title %}AI Analysis — {{ scenario.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .analysis-container { max-width: 900px; margin: 10px auto; padding: 0 16px; }
+    .analysis-content {
+        padding: 12px 16px;
+        line-height: 1.5;
+        font-size: 0.9rem;
+    }
+    .analysis-content h1 { font-size: 1.3rem; color: #455a64; margin: 16px 0 6px 0; padding-top: 10px; border-top: 1px solid #eee; }
+    .analysis-content h1:first-child { border-top: none; padding-top: 0; }
+    .analysis-content h2 { font-size: 1.15rem; color: #455a64; margin: 14px 0 6px 0; padding-top: 10px; border-top: 1px solid #f5f5f5; }
+    .analysis-content h2:first-child { border-top: none; padding-top: 0; }
+    .analysis-content h3 { font-size: 1.0rem; color: #455a64; margin: 10px 0 4px 0; padding-top: 10px; }
+    .analysis-content p { margin: 4px 0; }
+    .analysis-content strong { color: #37474f; }
+    .analysis-content ul, .analysis-content ol { padding-left: 24px; margin: 4px 0; list-style-position: outside; }
+    .analysis-content li { margin-bottom: 3px; }
+    .analysis-content table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+    .analysis-content table th, .analysis-content table td { padding: 8px 12px; border: 1px solid #e0e0e0; }
+    .analysis-content table th { background: #f5f5f5; text-align: left; }
+    .analysis-content code { background: #f0f0f0; padding: 2px 6px; border-radius: 3px; }
+    .loading-spinner { text-align: center; padding: 40px; }
+    .loading-spinner .preloader-wrapper { margin: 0 auto; }
+    @media only screen and (max-width: 600px) {
+        .analysis-content { padding: 12px; font-size: 0.9rem; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="analysis-container">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
+        <div>
+            <h5 class="blue-grey-text text-darken-3" style="margin: 0;">
+                <i class="material-icons" style="vertical-align: middle;">insights</i>
+                AI Strategic Analysis
+            </h5>
+            <p class="grey-text" style="margin: 2px 0 0 0;">
+                {{ scenario.title }}
+                {% if sim_run %}
+                <span style="font-size: 0.8rem; color: #9e9e9e;"> — Run {{ sim_run.created_at|date:"M d, Y H:i" }}</span>
+                {% endif %}
+            </p>
+        </div>
+        <div style="display: flex; gap: 6px;">
+            <a href="{% url 'analysis_history' scenario.pk %}" class="btn-small blue-grey lighten-1 waves-effect">
+                <i class="material-icons left">history</i>History
+            </a>
+            {% if cached_report %}
+            <a href="{% url 'simulation_analysis' scenario.pk %}?refresh=1" class="btn-small blue-grey lighten-2 waves-effect" id="regenerate-btn">
+                <i class="material-icons left">refresh</i>Regenerate
+            </a>
+            {% endif %}
+            <a href="{% url 'scenario_detail' scenario.pk %}" class="btn-small blue-grey darken-1 waves-effect">
+                <i class="material-icons left">arrow_back</i>Back
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-content analysis-content" id="analysis-content">
+            {% if cached_report %}
+            <!-- Cached report rendered directly -->
+            <div id="cached-report">{{ cached_report }}</div>
+            {% else %}
+            <div class="loading-spinner" id="loading-spinner">
+                <div class="preloader-wrapper active">
+                    <div class="spinner-layer spinner-blue-grey-only">
+                        <div class="circle-clipper left"><div class="circle"></div></div>
+                        <div class="gap-patch"><div class="circle"></div></div>
+                        <div class="circle-clipper right"><div class="circle"></div></div>
+                    </div>
+                </div>
+                <p class="grey-text" style="margin-top: 16px;">Analyzing simulation results with AI...</p>
+                <p class="grey-text text-lighten-1" style="font-size: 0.85rem;">This may include web research for real-world context.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    var contentDiv = document.getElementById('analysis-content');
+    var spinner = document.getElementById('loading-spinner');
+    var cachedDiv = document.getElementById('cached-report');
+    var csrfToken = '{{ csrf_token }}';
+    var refreshParam = new URLSearchParams(window.location.search).get('refresh');
+
+    // If cached report exists, format it and we're done (unless refreshing)
+    if (cachedDiv && !refreshParam) {
+        cachedDiv.innerHTML = formatAnalysis(cachedDiv.textContent);
+        return;
+    }
+
+    // If refreshing with cached content, replace with spinner
+    if (refreshParam && cachedDiv) {
+        contentDiv.innerHTML = '<div class="loading-spinner" id="loading-spinner">' +
+            '<div class="preloader-wrapper active"><div class="spinner-layer spinner-blue-grey-only">' +
+            '<div class="circle-clipper left"><div class="circle"></div></div>' +
+            '<div class="gap-patch"><div class="circle"></div></div>' +
+            '<div class="circle-clipper right"><div class="circle"></div></div>' +
+            '</div></div><p class="grey-text" style="margin-top:16px;">Regenerating analysis...</p></div>';
+        spinner = document.getElementById('loading-spinner');
+    }
+
+    // No cached report or refreshing — fetch from server
+    var url = '{% url "simulation_analysis" scenario.pk %}';
+    if (refreshParam) url += '?refresh=1';
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken,
+        },
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (spinner) spinner.style.display = 'none';
+        if (data.error) {
+            contentDiv.innerHTML = '<div class="card-panel red lighten-4">' +
+                '<i class="material-icons">error</i> ' + data.error + '</div>';
+        } else {
+            contentDiv.innerHTML = formatAnalysis(data.analysis);
+            // Clean URL
+            window.history.replaceState({}, '', '{% url "simulation_analysis" scenario.pk %}');
+        }
+    })
+    .catch(function(err) {
+        if (spinner) spinner.style.display = 'none';
+        contentDiv.innerHTML = '<div class="card-panel red lighten-4">' +
+            '<i class="material-icons">error</i> Failed to load analysis. Please try again.</div>';
+    });
+
+    function formatAnalysis(text) {
+        var lines = text.split('\n');
+        var html = '';
+        var inList = false;
+
+        for (var i = 0; i < lines.length; i++) {
+            var line = lines[i];
+            // Escape HTML
+            line = line.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            // Inline formatting
+            line = line.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+            line = line.replace(/\*(.+?)\*/g, '<em>$1</em>');
+            line = line.replace(/`(.+?)`/g, '<code>$1</code>');
+
+            // Headings
+            var headingMatch = line.match(/^(#{1,3}) (.+)/);
+            if (headingMatch) {
+                if (inList) { html += '</ul>'; inList = false; }
+                var level = headingMatch[1].length;
+                html += '<h' + level + '>' + headingMatch[2] + '</h' + level + '>';
+                continue;
+            }
+
+            // List items (- or 1.)
+            var listMatch = line.match(/^[\-\*] (.+)/) || line.match(/^\d+\. (.+)/);
+            if (listMatch) {
+                if (!inList) { html += '<ul>'; inList = true; }
+                html += '<li>' + listMatch[1] + '</li>';
+                continue;
+            }
+
+            // Non-list line: close any open list
+            if (inList) { html += '</ul>'; inList = false; }
+
+            // Blank line
+            if (line.trim() === '') {
+                continue;
+            }
+
+            // Normal paragraph
+            html += '<p>' + line + '</p>';
+        }
+
+        if (inList) html += '</ul>';
+        return html;
+    }
+})();
+</script>
+{% endblock %}

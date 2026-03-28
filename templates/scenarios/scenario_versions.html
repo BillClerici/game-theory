@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Version History — {{ scenario.title }}{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 20px;">
+    <div class="row" style="margin-bottom: 16px;">
+        <div class="col s8">
+            <h5 class="blue-grey-text text-darken-3">
+                <i class="material-icons" style="vertical-align: middle;">history</i>
+                Version History: {{ scenario.title }}
+            </h5>
+        </div>
+        <div class="col s4 right-align">
+            <a href="{% url 'scenario_detail' scenario.pk %}" class="btn-small blue-grey darken-1 waves-effect">
+                <i class="material-icons left">arrow_back</i>Back
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-content">
+            <table class="striped">
+                <thead>
+                    <tr>
+                        <th>Version</th>
+                        <th>Title</th>
+                        <th>Label</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for v in versions %}
+                    <tr {% if v.pk == scenario.pk %}style="background: #e3f2fd;"{% endif %}>
+                        <td>v{{ v.version_number }}</td>
+                        <td>{{ v.title }}</td>
+                        <td>{{ v.version_label|default:"-" }}</td>
+                        <td>{{ v.status.label }}</td>
+                        <td>{{ v.created_at|date:"M d, Y H:i" }}</td>
+                        <td>
+                            <a href="{% url 'scenario_detail' v.pk %}" class="btn-small btn-flat waves-effect">Open</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="center-align grey-text">No version history.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="card-action">
+            <form method="post" action="{% url 'scenario_branch' scenario.pk %}" style="display: inline-flex; align-items: center; gap: 10px;">
+                {% csrf_token %}
+                <input type="text" name="version_label" placeholder="Branch label (optional)" style="height: 2rem; margin: 0; width: 250px;">
+                <button type="submit" class="btn-small blue-grey darken-1 waves-effect">
+                    <i class="material-icons left">call_split</i>Create Branch
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

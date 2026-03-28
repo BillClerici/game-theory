@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Compare Versions — {{ scenario.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .version-row { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid #eee; }
+    .version-row:hover { background: #fafafa; }
+    .version-row label { flex: 1; cursor: pointer; display: flex; align-items: center; gap: 12px; margin: 0; }
+    .version-meta { font-size: 0.85rem; color: #78909c; }
+    .version-meta span { margin-right: 10px; }
+    .sim-badge { font-size: 0.75rem; padding: 2px 8px; border-radius: 10px; color: #fff; }
+    .sim-badge.has-sim { background: #66bb6a; }
+    .sim-badge.no-sim { background: #bdbdbd; }
+    .current-badge { font-size: 0.75rem; padding: 2px 8px; border-radius: 10px; background: #42a5f5; color: #fff; margin-left: 6px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 10px; max-width: 800px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <div>
+            <h5 class="blue-grey-text text-darken-3" style="margin: 0;">
+                <i class="material-icons" style="vertical-align: middle;">compare_arrows</i>
+                Compare Versions
+            </h5>
+            <p class="grey-text" style="margin: 2px 0 0 0;">{{ scenario.title }} — Select 2-4 versions to compare</p>
+        </div>
+        <a href="{% url 'scenario_detail' scenario.pk %}" class="btn-small blue-grey darken-1 waves-effect">
+            <i class="material-icons left">arrow_back</i>Back
+        </a>
+    </div>
+
+    <form method="get" action="{% url 'compare_results' scenario.pk %}" id="compare-form">
+        <div class="card">
+            <div class="card-content" style="padding: 12px 0;">
+                {% for v in versions %}
+                <div class="version-row">
+                    <label>
+                        <input type="checkbox" name="v" value="{{ v.pk }}" class="filled-in version-checkbox"
+                               {% if v.pk == scenario.pk %}checked{% endif %} />
+                        <span>
+                            <strong>v{{ v.version_number }}</strong>
+                            {% if v.version_label %} — {{ v.version_label }}{% endif %}
+                            {% if v.pk == scenario.pk %}<span class="current-badge">current</span>{% endif %}
+                        </span>
+                    </label>
+                    <div class="version-meta">
+                        <span>{{ v.created_at|date:"M d, H:i" }}</span>
+                        {% if v.latest_sim %}
+                        <span class="sim-badge has-sim">
+                            Outcome: {{ v.latest_sim.predicted_outcome|default:"—" }}
+                        </span>
+                        {% else %}
+                        <span class="sim-badge no-sim">No simulation</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <div class="center-align grey-text" style="padding: 20px;">
+                    No versions found. Create a branch first using the "What-If" or "Versions" buttons.
+                </div>
+                {% endfor %}
+            </div>
+            <div class="card-action right-align">
+                <span class="grey-text" id="select-count" style="margin-right: 12px; font-size: 0.85rem;">0 selected</span>
+                <button type="submit" class="btn blue-grey darken-2 waves-effect waves-light" id="compare-btn" disabled>
+                    <i class="material-icons left">compare_arrows</i>Compare Selected
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    var checkboxes = document.querySelectorAll('.version-checkbox');
+    var countEl = document.getElementById('select-count');
+    var btn = document.getElementById('compare-btn');
+
+    function update() {
+        var checked = document.querySelectorAll('.version-checkbox:checked').length;
+        countEl.textContent = checked + ' selected';
+        btn.disabled = checked < 2;
+        // Limit to 4
+        checkboxes.forEach(function(cb) {
+            if (!cb.checked && checked >= 4) cb.disabled = true;
+            else cb.disabled = false;
+        });
+    }
+
+    checkboxes.forEach(function(cb) { cb.addEventListener('change', update); });
+    update();
+})();
+</script>
+{% endblock %}
