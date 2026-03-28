@@ -29,8 +29,22 @@
     .action-btn { margin: 2px; }
     /* Stakeholder Landscape Map */
     #stakeholder-map { width: 100%; height: 320px; position: relative; background: #fafafa; border: 1px solid #e0e0e0; border-radius: 4px; }
-    .map-dot { position: absolute; border-radius: 50%; border: 2px solid rgba(0,0,0,0.3); cursor: pointer; transition: transform 0.2s; }
+    .map-dot {
+        position: absolute; border-radius: 50%; border: 2px solid rgba(0,0,0,0.3);
+        cursor: pointer; transition: transform 0.2s;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        overflow: hidden; text-align: center;
+    }
     .map-dot:hover { transform: scale(1.3); z-index: 10; }
+    .map-dot .dot-name {
+        font-size: 8px; font-weight: 600; color: #fff; line-height: 1.1;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.5); white-space: nowrap;
+        max-width: 100%; overflow: hidden; text-overflow: ellipsis; padding: 0 2px;
+    }
+    .map-dot .dot-val {
+        font-size: 7px; color: rgba(255,255,255,0.9); line-height: 1;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    }
     .map-tooltip { position: absolute; background: #333; color: #fff; padding: 6px 10px; border-radius: 4px; font-size: 0.8rem; pointer-events: none; z-index: 20; white-space: nowrap; display: none; }
     .map-axis-label { position: absolute; color: #9e9e9e; font-size: 0.75rem; }
     /* Prediction results */
@@ -39,6 +53,50 @@
     .prediction-card.deadlocked { border-left-color: #ef5350; }
     /* Round timeline chart */
     #timeline-chart { width: 100%; height: 250px; }
+    /* Info badges & popups */
+    .score-block { text-align: center; }
+    .score-number-row {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .score-number-row .score-value { font-size: 2rem; font-weight: bold; color: #455a64; line-height: 1; }
+    .score-block .score-label { font-size: 0.8rem; color: #78909c; display: block; margin-top: 4px; }
+    .info-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        cursor: pointer;
+        flex-shrink: 0;
+        transition: transform 0.15s;
+    }
+    .info-badge:hover { transform: scale(1.15); }
+    .info-badge i { font-size: 18px; color: #fff; }
+    .info-badge.badge-outcome { background: #42a5f5; }
+    .info-badge.badge-confidence { background: #66bb6a; }
+    .info-popup {
+        display: none;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        top: 100%;
+        margin-top: 8px;
+        width: 340px;
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+        padding: 14px 16px;
+        font-size: 0.82rem;
+        line-height: 1.5;
+        color: #333;
+        text-align: left;
+        z-index: 100;
+    }
+    .info-popup.active { display: block; }
     /* Toolbar */
     .scenario-toolbar {
         display: flex;
@@ -94,7 +152,7 @@
     </div>
 
     <!-- Scenario Title (full width) -->
-    <h5 class="blue-grey-text text-darken-3" style="margin: 10px 0 2px 0;">{{ scenario.title }}</h5>
+    <h5 class="blue-grey-text text-darken-3" style="margin: 10px 0 10px 0;">{{ scenario.title }}</h5>
 
     <!-- Status badges (full width) -->
     <p style="margin: 0 0 8px 0;">
@@ -109,23 +167,22 @@
     <div style="display: flex; gap: 12px; margin-bottom: 10px; flex-wrap: wrap;">
         <div style="flex: 1; min-width: 250px;">
             {% if scenario.description %}
-            <p class="grey-text" style="font-size: 0.9rem; margin: 0;">{{ scenario.description }}</p>
+            <p class="grey-text" style="font-size: 0.9rem; margin: 10px 0 0 0;">{{ scenario.description }}</p>
             {% endif %}
         </div>
-        <div style="flex: 0 0 auto; min-width: 300px;">
+        <div style="flex: 0 0 auto; min-width: 380px;">
             <div class="card" style="margin: 0;">
                 <div class="card-content" style="padding: 12px 16px;">
                     <span class="card-title" style="font-size: 1rem;">
                         <i class="material-icons">assessment</i> Data Quality
                     </span>
                     <div style="display: flex; align-items: center; gap: 16px;">
-                        <div style="text-align: center;">
+                        <div style="text-align: center; white-space: nowrap;">
                             <span class="quality-score {% if quality.score >= 70 %}quality-good{% elif quality.score >= 40 %}quality-ok{% else %}quality-poor{% endif %}">
                                 {{ quality.score }}
-                            </span>
-                            <br><small class="grey-text">/ 100</small>
+                            </span><small class="grey-text" style="font-size: 1rem;"> / 100</small>
                         </div>
-                        <div style="font-size: 0.85rem; flex: 1;">
+                        <div style="font-size: 0.85rem; flex: 1; padding-left: 16px;">
                             <div>Completeness: <strong>{{ quality.completeness }}%</strong></div>
                             <div>Diversity: <strong>{{ quality.diversity }}%</strong></div>
                             <div>Consistency: <strong>{{ quality.consistency }}%</strong></div>
@@ -253,27 +310,6 @@
         </div>
     </div>
 
-    <!-- Stakeholder Landscape Map (full width) -->
-    <div class="card detail-section">
-        <div class="card-content">
-            <span class="card-title" style="font-size: 1rem;">
-                <i class="material-icons">scatter_plot</i> Stakeholder Landscape
-            </span>
-            {% if players and issues %}
-            <div id="stakeholder-map">
-                <div class="map-axis-label" style="bottom: 2px; left: 50%; transform: translateX(-50%);">Position (0–100)</div>
-                <div class="map-axis-label" style="top: 50%; left: 2px; transform: rotate(-90deg) translateX(-50%); transform-origin: left center;">Capability</div>
-                <div class="map-tooltip" id="map-tooltip"></div>
-            </div>
-            <div style="margin-top: 8px; font-size: 0.75rem; color: #9e9e9e; text-align: center;">
-                X = Position &middot; Y = Capability &middot; Size = Salience
-            </div>
-            {% else %}
-            <p class="grey-text center-align">Add issues and players to see the stakeholder map.</p>
-            {% endif %}
-        </div>
-    </div>
-
     <!-- Prediction Results (full width) -->
     {% if latest_sim %}
     <div class="card detail-section prediction-card {% if latest_sim.deadlock_detected %}deadlocked{% elif latest_sim.confidence_score and latest_sim.confidence_score < 0.5 %}fragile{% endif %}">
@@ -282,15 +318,53 @@
                 <i class="material-icons">insights</i> Prediction Results
             </span>
             <div class="row" style="margin-bottom: 0;">
-                <div class="col s6 center-align">
-                    <span style="font-size: 2rem; font-weight: bold; color: #455a64;">{{ latest_sim.predicted_outcome }}</span>
-                    <br><small class="grey-text">Predicted Outcome</small>
+                <div class="col s6" style="position: relative;">
+                    <div class="score-block">
+                        <div class="score-number-row">
+                            <span class="score-value">{{ latest_sim.predicted_outcome }}</span>
+                            <span class="info-badge badge-outcome info-trigger" data-tooltip="outcome-tip" title="What does this mean?">
+                                <i class="material-icons">gps_fixed</i>
+                            </span>
+                        </div>
+                        <span class="score-label">Predicted Outcome</span>
+                    </div>
+                    <div class="info-popup" id="outcome-tip">
+                        <div style="font-weight: 600; font-size: 0.95rem; color: #42a5f5; margin-bottom: 6px;">
+                            <i class="material-icons" style="font-size: 16px; vertical-align: middle;">scatter_plot</i> Predicted Outcome
+                        </div>
+                        The power-weighted median position on a 0–100 scale.
+                        {% if issues %}{% with first_issue=issues.0 %}
+                        <br><br><strong>0</strong> = {{ first_issue.scale_min_label }}
+                        <br><strong>100</strong> = {{ first_issue.scale_max_label }}
+                        <br><strong>Status quo</strong> = {{ first_issue.status_quo_position }}
+                        {% endwith %}{% endif %}
+                        <br><br>A score of <strong>{{ latest_sim.predicted_outcome }}</strong> means the model predicts the negotiated outcome will land at this point after {{ latest_sim.total_rounds_executed }} rounds of players exerting influence on each other.
+                    </div>
                 </div>
-                <div class="col s6 center-align">
-                    <span style="font-size: 2rem; font-weight: bold; color: #455a64;">
-                        {% widthratio latest_sim.confidence_score 1 100 %}%
-                    </span>
-                    <br><small class="grey-text">Confidence</small>
+                <div class="col s6" style="position: relative;">
+                    <div class="score-block">
+                        <div class="score-number-row">
+                            <span class="score-value">{% widthratio latest_sim.confidence_score 1 100 %}%</span>
+                            <span class="info-badge badge-confidence info-trigger" data-tooltip="conf-tip" title="What does this mean?">
+                                <i class="material-icons">verified</i>
+                            </span>
+                        </div>
+                        <span class="score-label">Confidence</span>
+                    </div>
+                    <div class="info-popup" id="conf-tip">
+                        <div style="font-weight: 600; font-size: 0.95rem; color: #66bb6a; margin-bottom: 6px;">
+                            <i class="material-icons" style="font-size: 16px; vertical-align: middle;">verified</i> Confidence Score
+                        </div>
+                        How reliable is this prediction? Based on:
+                        <br><strong>Convergence (60%)</strong> — did players cluster toward consensus? Tighter = higher confidence.
+                        <br><strong>Coalition Strength (40%)</strong> — what % of total power backs the outcome?
+                        <br><br>
+                        {% widthratio latest_sim.confidence_score 1 100 %}% means
+                        {% if latest_sim.confidence_score >= 0.7 %}the prediction is <strong style="color: #66bb6a;">strong</strong> — players converged well and a dominant coalition supports this outcome.
+                        {% elif latest_sim.confidence_score >= 0.4 %}the prediction is <strong style="color: #ffa726;">moderate</strong> — there is some convergence but the outcome could shift if key players change positions.
+                        {% else %}the prediction is <strong style="color: #ef5350;">uncertain</strong> — players are divided and the outcome is fragile. Small parameter changes could significantly alter results.
+                        {% endif %}
+                    </div>
                 </div>
             </div>
             <div style="margin-top: 12px; font-size: 0.85rem;">
@@ -322,6 +396,37 @@
         </div>
     </div>
 
+    <!-- Stakeholder Landscape Map (full width) -->
+    <div class="card detail-section">
+        <div class="card-content">
+            <span class="card-title" style="font-size: 1rem;">
+                <i class="material-icons">scatter_plot</i> Stakeholder Landscape
+            </span>
+            <p class="grey-text" style="font-size: 0.82rem; margin: 0 0 8px 0;">
+                Each bubble represents a player.
+                <strong>Horizontal position</strong> shows where they want the outcome to land
+                {% if issues %}(left = {{ issues.0.scale_min_label }}, right = {{ issues.0.scale_max_label }}){% endif %}.
+                <strong>Vertical position</strong> shows their power/influence — higher means more capability to shape the outcome.
+                <strong>Bubble size</strong> shows salience — how much they care. Large, high bubbles are the most influential players.
+                Hover over any bubble for details.
+            </p>
+            {% if players and issues %}
+            <div id="stakeholder-map">
+                <div class="map-axis-label" style="bottom: 2px; left: 50%; transform: translateX(-50%);">
+                    Position: {% if issues %}{{ issues.0.scale_min_label }} (0) ← → {{ issues.0.scale_max_label }} (100){% else %}0–100{% endif %}
+                </div>
+                <div class="map-axis-label" style="top: 50%; left: 2px; transform: rotate(-90deg) translateX(-50%); transform-origin: left center;">Capability (influence)</div>
+                <div class="map-tooltip" id="map-tooltip"></div>
+            </div>
+            <div style="margin-top: 8px; font-size: 0.75rem; color: #9e9e9e; text-align: center;">
+                X = Position &middot; Y = Capability &middot; Size = Salience &middot; Label = Name &middot; Numbers = Position / Capability
+            </div>
+            {% else %}
+            <p class="grey-text center-align">Add issues and players to see the stakeholder map.</p>
+            {% endif %}
+        </div>
+    </div>
+
     <!-- Negotiation Timeline (full width) -->
     {% if round_data %}
     <div class="card detail-section">
@@ -329,6 +434,18 @@
             <span class="card-title" style="font-size: 1rem;">
                 <i class="material-icons">timeline</i> Negotiation Timeline
             </span>
+            <p class="grey-text" style="font-size: 0.82rem; margin: 0 0 8px 0;">
+                Shows how each player's position shifted across {{ latest_sim.total_rounds_executed }} negotiation rounds.
+                Each line tracks one player —
+                {% if latest_sim.converged %}
+                lines converging means players reached consensus under mutual pressure.
+                {% elif latest_sim.deadlock_detected %}
+                separated lines indicate factions that couldn't reach agreement (deadlock).
+                {% else %}
+                movement toward the center indicates compromise, while flat lines show players holding firm.
+                {% endif %}
+                {% if issues %}The Y-axis represents the outcome scale: {{ issues.0.scale_min_label }} (0) to {{ issues.0.scale_max_label }} (100).{% endif %}
+            </p>
             <canvas id="timeline-chart"></canvas>
         </div>
     </div>
@@ -375,23 +492,36 @@
     positions.forEach(function(p, idx) {
         var dot = document.createElement('div');
         dot.className = 'map-dot';
-        var size = Math.max(16, Math.min(60, p.salience * 0.6));
+        var size = Math.max(28, Math.min(70, p.salience * 0.7));
         dot.style.width = size + 'px';
         dot.style.height = size + 'px';
         dot.style.left = (padding + (p.position / 100) * mapW - size / 2) + 'px';
         dot.style.bottom = (padding + (p.capability / 100) * mapH - size / 2) + 'px';
         dot.style.background = colors[idx % colors.length];
-        dot.style.opacity = '0.8';
-        dot.dataset.name = p.name;
-        dot.dataset.position = p.position;
-        dot.dataset.capability = p.capability;
-        dot.dataset.salience = p.salience;
+        dot.style.opacity = '0.85';
+
+        // Short name label (first word or first N chars)
+        var shortName = p.name.split(/[\s(]/)[0];
+        if (shortName.length > 8) shortName = shortName.substring(0, 7) + '…';
+        var nameEl = document.createElement('span');
+        nameEl.className = 'dot-name';
+        nameEl.textContent = shortName;
+        // Scale font with bubble size
+        nameEl.style.fontSize = Math.max(7, Math.min(11, size * 0.16)) + 'px';
+        dot.appendChild(nameEl);
+
+        // Position value below name (only if bubble is big enough)
+        if (size >= 36) {
+            var valEl = document.createElement('span');
+            valEl.className = 'dot-val';
+            valEl.textContent = Math.round(p.position) + ' / ' + Math.round(p.capability);
+            valEl.style.fontSize = Math.max(6, Math.min(9, size * 0.13)) + 'px';
+            dot.appendChild(valEl);
+        }
 
         dot.addEventListener('mouseenter', function(e) {
             tooltip.textContent = p.name + ' — Pos: ' + p.position + '  Cap: ' + p.capability + '  Sal: ' + p.salience;
             tooltip.style.display = 'block';
-            tooltip.style.left = (e.offsetX + 15) + 'px';
-            tooltip.style.bottom = (mapH - e.offsetY + 15) + 'px';
         });
         dot.addEventListener('mousemove', function(e) {
             var rect = mapEl.getBoundingClientRect();
@@ -485,5 +615,27 @@
         ctx.fillText(name.substring(0, 12), W - chartPadding.right - 68, legendY + 8);
     });
 })();
+
+// ── Info popup toggle ──
+document.querySelectorAll('.info-trigger').forEach(function(trigger) {
+    trigger.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var tipId = this.dataset.tooltip;
+        var popup = document.getElementById(tipId);
+        if (!popup) return;
+        var wasActive = popup.classList.contains('active');
+        // Close all popups first
+        document.querySelectorAll('.info-popup.active').forEach(function(p) { p.classList.remove('active'); });
+        if (!wasActive) popup.classList.add('active');
+    });
+});
+// Close popups when clicking elsewhere
+document.addEventListener('click', function() {
+    document.querySelectorAll('.info-popup.active').forEach(function(p) { p.classList.remove('active'); });
+});
+// Prevent popup clicks from closing
+document.querySelectorAll('.info-popup').forEach(function(p) {
+    p.addEventListener('click', function(e) { e.stopPropagation(); });
+});
 </script>
 {% endblock %}
