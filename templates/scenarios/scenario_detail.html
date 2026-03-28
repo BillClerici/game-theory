@@ -486,8 +486,6 @@
     var colors = ['#42a5f5', '#66bb6a', '#ffa726', '#ef5350', '#ab47bc', '#26c6da', '#8d6e63', '#78909c', '#ec407a', '#5c6bc0'];
 
     var padding = 30;
-    var mapW = mapEl.offsetWidth - padding * 2;
-    var mapH = mapEl.offsetHeight - padding * 2;
 
     positions.forEach(function(p, idx) {
         var dot = document.createElement('div');
@@ -495,8 +493,14 @@
         var size = Math.max(28, Math.min(70, p.salience * 0.7));
         dot.style.width = size + 'px';
         dot.style.height = size + 'px';
-        dot.style.left = (padding + (p.position / 100) * mapW - size / 2) + 'px';
-        dot.style.bottom = (padding + (p.capability / 100) * mapH - size / 2) + 'px';
+        // Plot area shrinks by half the bubble size on each edge so the dot never overflows
+        var halfSize = size / 2;
+        var usableW = mapEl.offsetWidth - padding * 2 - size;
+        var usableH = mapEl.offsetHeight - padding * 2 - size;
+        var xPos = padding + halfSize + (p.position / 100) * usableW - halfSize;
+        var yPos = padding + halfSize + (p.capability / 100) * usableH - halfSize;
+        dot.style.left = xPos + 'px';
+        dot.style.bottom = yPos + 'px';
         dot.style.background = colors[idx % colors.length];
         dot.style.opacity = '0.85';
 
