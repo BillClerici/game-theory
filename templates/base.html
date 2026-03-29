@@ -227,6 +227,11 @@
             <a href="{% url 'methodology' %}"><i class="material-icons">school</i>BDM Methodology</a>
         </li>
 
+        <!-- Case Studies -->
+        <li class="{% if 'case_study' in request.resolver_match.url_name %}active{% endif %}">
+            <a href="{% url 'case_study_list' %}"><i class="material-icons">menu_book</i>BDM Use Cases</a>
+        </li>
+
         {% if user.is_superuser %}
         <!-- Admin section — superusers only, expanded by default -->
         <li><div class="divider"></div></li>

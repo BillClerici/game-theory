@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block title %}BDM Use Cases{% endblock %}
+
+{% block extra_css %}
+<style>
+    .cs-container { max-width: 950px; margin: 10px auto; padding: 0 16px 40px 16px; }
+    .cs-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+    .cs-card {
+        display: flex; border-radius: 10px; overflow: hidden;
+        background: #fff; transition: box-shadow 0.2s, transform 0.15s;
+        border: 1px solid #e8e8e8;
+    }
+    .cs-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.1); transform: translateY(-2px); }
+    .cs-card-accent {
+        width: 8px; flex-shrink: 0;
+    }
+    .cs-card-accent.beginner { background: linear-gradient(180deg, #66bb6a, #43a047); }
+    .cs-card-accent.medium { background: linear-gradient(180deg, #ffa726, #f57c00); }
+    .cs-card-accent.complex { background: linear-gradient(180deg, #ef5350, #c62828); }
+    .cs-card-body { flex: 1; padding: 16px 20px; display: flex; flex-direction: column; }
+    .cs-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+    .cs-card-meta { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 6px; }
+    .diff-badge {
+        font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+        padding: 3px 10px; border-radius: 12px; color: #fff;
+    }
+    .diff-beginner { background: #66bb6a; }
+    .diff-medium { background: #ffa726; }
+    .diff-complex { background: #ef5350; }
+    .type-badge {
+        font-size: 0.7rem; font-weight: 600; padding: 3px 8px; border-radius: 4px;
+        background: #eceff1; color: #546e7a;
+    }
+    .cs-card-stats {
+        display: flex; gap: 16px; margin-top: 10px; font-size: 0.8rem; color: #78909c;
+    }
+    .cs-card-stats .cs-stat {
+        display: flex; align-items: center; gap: 4px;
+    }
+    .cs-card-stats .cs-stat i { font-size: 16px; }
+    .cs-card-stats .cs-stat strong { color: #455a64; }
+    .cs-card-outcome {
+        text-align: center; padding: 12px 16px; border-left: 1px solid #f0f0f0;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        min-width: 100px; flex-shrink: 0;
+    }
+    .cs-card-outcome .outcome-num { font-size: 1.6rem; font-weight: 700; color: #37474f; }
+    .cs-card-outcome .outcome-label { font-size: 0.7rem; color: #9e9e9e; }
+    .filter-bar {
+        display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+        padding: 8px 14px; background: linear-gradient(135deg, #eceff1, #f5f5f5);
+        border-radius: 8px; border: 1px solid #e0e0e0; margin-bottom: 16px;
+    }
+    .filter-bar input, .filter-bar select {
+        height: 2.2rem !important; margin: 0 !important;
+        border: 1px solid #ddd; border-radius: 6px; padding: 0 10px; font-size: 0.88rem;
+    }
+    .filter-bar input { flex: 1; min-width: 150px; }
+    .diff-filter-btn {
+        padding: 4px 14px; border-radius: 16px; font-size: 0.8rem; font-weight: 600;
+        border: 2px solid #e0e0e0; background: #fff; cursor: pointer;
+        text-decoration: none; color: #546e7a; transition: all 0.15s;
+    }
+    .diff-filter-btn:hover { border-color: #90a4ae; }
+    .diff-filter-btn.active-beginner { border-color: #66bb6a; background: #e8f5e9; color: #2e7d32; }
+    .diff-filter-btn.active-medium { border-color: #ffa726; background: #fff3e0; color: #e65100; }
+    .diff-filter-btn.active-complex { border-color: #ef5350; background: #ffebee; color: #c62828; }
+    @media only screen and (max-width: 600px) {
+        .cs-card { flex-direction: column; }
+        .cs-card-outcome { border-left: none; border-top: 1px solid #f0f0f0; flex-direction: row; gap: 8px; padding: 8px 16px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="cs-container">
+    <!-- Hero -->
+    <div class="page-hero">
+        <h4><i class="material-icons">menu_book</i> BDM Use Cases</h4>
+        <p>Real-world scenarios modeled with the BDM expected utility engine. Learn from use cases — from simple decisions to complex geopolitical negotiations.</p>
+    </div>
+
+    <!-- Difficulty legend -->
+    <div style="display: flex; gap: 16px; margin-bottom: 12px; flex-wrap: wrap; justify-content: center;">
+        <div style="display: flex; align-items: center; gap: 6px; font-size: 0.82rem;">
+            <span class="diff-badge diff-beginner">Beginner</span> Simple everyday decisions with 3-5 players
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px; font-size: 0.82rem;">
+            <span class="diff-badge diff-medium">Medium</span> Business scenarios with competing interests
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px; font-size: 0.82rem;">
+            <span class="diff-badge diff-complex">Complex</span> Multi-party negotiations with 7+ stakeholders
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-bar">
+        <form method="get" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; flex: 1;">
+            <i class="material-icons" style="color: #9e9e9e; font-size: 1.2rem;">search</i>
+            <input name="q" type="text" value="{{ search_query }}" placeholder="Search case studies...">
+            <select name="sort" class="browser-default">
+                <option value="difficulty" {% if current_sort == "difficulty" %}selected{% endif %}>Sort: Difficulty</option>
+                <option value="title" {% if current_sort == "title" %}selected{% endif %}>Sort: Title</option>
+                <option value="type" {% if current_sort == "type" %}selected{% endif %}>Sort: Category</option>
+            </select>
+            <input type="hidden" name="difficulty" id="diff-input" value="{{ current_difficulty }}">
+            <button type="submit" class="btn-small blue-grey darken-1 waves-effect" style="border-radius:6px;">Apply</button>
+        </form>
+        <div style="display: flex; gap: 6px;">
+            <a href="?sort={{ current_sort }}" class="diff-filter-btn {% if not current_difficulty %}active-beginner{% endif %}" style="{% if not current_difficulty %}border-color:#455a64; background:#eceff1; color:#37474f;{% endif %}">All</a>
+            <a href="?difficulty=beginner&sort={{ current_sort }}" class="diff-filter-btn {% if current_difficulty == 'beginner' %}active-beginner{% endif %}">Beginner</a>
+            <a href="?difficulty=medium&sort={{ current_sort }}" class="diff-filter-btn {% if current_difficulty == 'medium' %}active-medium{% endif %}">Medium</a>
+            <a href="?difficulty=complex&sort={{ current_sort }}" class="diff-filter-btn {% if current_difficulty == 'complex' %}active-complex{% endif %}">Complex</a>
+        </div>
+    </div>
+
+    <!-- Case Study Cards -->
+    <div class="cs-grid">
+        {% for item in studies %}
+        <a href="{% url 'case_study_detail' item.scenario.pk %}" style="text-decoration: none;">
+            <div class="cs-card">
+                <div class="cs-card-accent {{ item.scenario.version_label }}"></div>
+                <div class="cs-card-body">
+                    <div class="cs-card-top">
+                        <div>
+                            <span style="font-size: 1.1rem; font-weight: 600; color: #37474f;">{{ item.scenario.title }}</span>
+                            <div class="cs-card-meta">
+                                <span class="diff-badge diff-{{ item.scenario.version_label }}">{{ item.scenario.version_label|title }}</span>
+                                <span class="type-badge">{{ item.scenario.scenario_type.label }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.85rem; color: #607d8b; margin-top: 8px; line-height: 1.5; flex: 1;">
+                        {{ item.scenario.description|truncatewords:30 }}
+                    </p>
+                    <div class="cs-card-stats">
+                        <div class="cs-stat"><i class="material-icons">groups</i> <strong>{{ item.scenario.players.count }}</strong> players</div>
+                        <div class="cs-stat"><i class="material-icons">topic</i> <strong>{{ item.scenario.issues.count }}</strong> issue{{ item.scenario.issues.count|pluralize }}</div>
+                        {% if item.sim %}
+                        <div class="cs-stat"><i class="material-icons">loop</i> <strong>{{ item.sim.total_rounds_executed }}</strong> rounds</div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if item.sim %}
+                <div class="cs-card-outcome">
+                    <div class="outcome-num">{{ item.sim.predicted_outcome }}</div>
+                    <div class="outcome-label">Predicted<br>Outcome</div>
+                </div>
+                {% endif %}
+            </div>
+        </a>
+        {% empty %}
+        <div class="accent-card ac-blue" style="text-align: center; padding: 20px;">
+            <p style="color: #607d8b;">No case studies found matching your filters.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
