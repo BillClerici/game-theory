@@ -318,8 +318,9 @@
             var adminColl = document.querySelector('.admin-collapsible');
             if (adminColl) {
                 var ci = M.Collapsible.getInstance(adminColl.closest('.collapsible'));
-                // Admin menu starts collapsed; uncomment to auto-open:
-                // if (ci) ci.open(0);
+                // Auto-open admin menu if an admin child page is active
+                var adminHasActive = document.querySelector('.admin-collapsible .collapsible-body li.active');
+                if (ci && adminHasActive) ci.open(0);
             }
 
             // State
