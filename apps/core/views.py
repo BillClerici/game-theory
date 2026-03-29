@@ -31,6 +31,10 @@ class MethodologyView(TemplateView):
     template_name = "methodology.html"
 
 
+class ScenarioGuideView(TemplateView):
+    template_name = "scenario_guide.html"
+
+
 class CaseStudyListView(TemplateView):
     template_name = "case_studies/list.html"
 

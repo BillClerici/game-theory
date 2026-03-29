@@ -1,0 +1,488 @@
+{% extends "base.html" %}
+
+{% block title %}Scenario Thinking Guide — Game Theory{% endblock %}
+
+{% block extra_css %}
+<style>
+    .guide-container { max-width: 950px; margin: 10px auto; padding: 0 16px 40px 16px; }
+    .guide-section { margin-bottom: 28px; }
+    .guide-section h5 {
+        font-size: 1.15rem; color: #37474f; margin: 0 0 12px 0;
+        display: flex; align-items: center; gap: 8px;
+        padding-bottom: 6px; border-bottom: 2px solid #e0e0e0;
+    }
+    .guide-section h5 .gs-num {
+        background: #455a64; color: #fff; width: 30px; height: 30px;
+        border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+        font-size: 0.9rem; font-weight: 700; flex-shrink: 0;
+    }
+    .gc { border-left: 4px solid #90a4ae; background: #fafafa; border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 12px; }
+    .gc.gc-blue { border-left-color: #42a5f5; }
+    .gc.gc-green { border-left-color: #66bb6a; }
+    .gc.gc-orange { border-left-color: #ffa726; }
+    .gc.gc-purple { border-left-color: #ab47bc; }
+    .gc.gc-red { border-left-color: #ef5350; }
+    .gc.gc-teal { border-left-color: #26a69a; }
+    .gc h6 { margin: 0 0 6px 0; font-size: 0.95rem; color: #37474f; display: flex; align-items: center; gap: 6px; }
+    .gc p { margin: 4px 0; font-size: 0.88rem; line-height: 1.65; color: #546e7a; }
+    .gc ul { margin: 6px 0; padding-left: 20px; }
+    .gc li { font-size: 0.88rem; color: #546e7a; line-height: 1.6; margin-bottom: 4px; }
+    .gc li strong { color: #37474f; }
+    /* Thought bubbles */
+    .thought-grid {
+        display: grid; grid-template-columns: repeat(2, 1fr);
+        gap: 12px; margin: 12px 0;
+    }
+    .thought-card {
+        border: 2px solid #e8e8e8; border-radius: 12px; padding: 16px; text-align: center;
+        transition: box-shadow 0.2s, transform 0.15s, border-color 0.2s;
+    }
+    .thought-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); transform: translateY(-2px); }
+    .tc-icon { font-size: 2.5rem; margin-bottom: 6px; }
+    .tc-title { font-weight: 700; font-size: 0.95rem; color: #37474f; margin-bottom: 4px; }
+    .tc-desc { font-size: 0.82rem; color: #607d8b; line-height: 1.5; }
+    /* Do/Don't */
+    .do-dont { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0; }
+    .do-col, .dont-col { border-radius: 10px; padding: 14px 16px; }
+    .do-col { background: #e8f5e9; border: 1px solid #c8e6c9; }
+    .dont-col { background: #ffebee; border: 1px solid #ffcdd2; }
+    .do-col h6 { color: #2e7d32; margin: 0 0 8px 0; font-size: 0.9rem; display: flex; align-items: center; gap: 4px; }
+    .dont-col h6 { color: #c62828; margin: 0 0 8px 0; font-size: 0.9rem; display: flex; align-items: center; gap: 4px; }
+    .do-col li, .dont-col li { font-size: 0.82rem; line-height: 1.5; margin-bottom: 4px; }
+    /* Scale builder */
+    .scale-builder {
+        background: #f5f5f5; border-radius: 10px; padding: 16px; margin: 12px 0;
+    }
+    .sb-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+    .sb-label { font-size: 0.82rem; color: #78909c; min-width: 80px; text-align: right; }
+    .sb-value { font-weight: 700; color: #37474f; font-size: 0.9rem; }
+    .sb-bar { flex: 1; height: 10px; border-radius: 5px; position: relative; }
+    .sb-marker {
+        position: absolute; top: -6px; width: 22px; height: 22px; border-radius: 50%;
+        background: #fff; border: 3px solid #455a64; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.6rem; font-weight: 700; color: #455a64;
+    }
+    /* Question prompts */
+    .question-box {
+        background: #e3f2fd; border-radius: 10px; padding: 14px 18px; margin: 10px 0;
+        border-left: 4px solid #42a5f5;
+    }
+    .question-box .qb-q {
+        font-size: 0.92rem; font-weight: 600; color: #1565c0; margin-bottom: 4px;
+        display: flex; align-items: flex-start; gap: 6px;
+    }
+    .question-box .qb-hint { font-size: 0.82rem; color: #546e7a; line-height: 1.5; margin-left: 24px; }
+    /* Calibration table */
+    .cal-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 0.82rem; }
+    .cal-table th, .cal-table td { padding: 8px 10px; border: 1px solid #e8e8e8; }
+    .cal-table th { background: #f5f5f5; color: #455a64; text-align: left; font-weight: 600; }
+    .cal-table td { color: #546e7a; }
+    .cal-table .cal-range { font-weight: 700; color: #37474f; text-align: center; }
+    /* Number cards */
+    .num-section { margin-bottom: 20px; }
+    .num-header {
+        display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+        border-radius: 8px; color: #fff; margin-bottom: 8px;
+    }
+    .num-header i { font-size: 22px; }
+    .num-header .nh-title { font-weight: 700; font-size: 1rem; }
+    .num-header .nh-question { font-size: 0.82rem; opacity: 0.85; font-style: italic; }
+    .nh-blue { background: linear-gradient(135deg, #42a5f5, #1e88e5); }
+    .nh-green { background: linear-gradient(135deg, #66bb6a, #43a047); }
+    .nh-orange { background: linear-gradient(135deg, #ffa726, #f57c00); }
+    .nh-purple { background: linear-gradient(135deg, #ab47bc, #8e24aa); }
+    .nh-red { background: linear-gradient(135deg, #ef5350, #c62828); }
+    @media only screen and (max-width: 600px) {
+        .do-dont { grid-template-columns: 1fr; }
+        .thought-grid { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="guide-container">
+    <!-- Hero -->
+    <div class="page-hero">
+        <h4><i class="material-icons">psychology</i> Scenario Thinking Guide</h4>
+        <p>A step-by-step guide to framing any decision, negotiation, or conflict as a BDM prediction scenario.</p>
+    </div>
+
+    <!-- Intro -->
+    <div class="gc gc-blue">
+        <h6><i class="material-icons" style="font-size:18px;">lightbulb</i> The Mindset Shift</h6>
+        <p>Most people think about decisions as <strong>"what should I do?"</strong> The BDM model asks a different question: <strong>"Given what every stakeholder wants and how much power they have, where will things land?"</strong></p>
+        <p>This guide will teach you how to think in that framework — decomposing any situation into issues, players, and numbers so the engine can predict and advise.</p>
+    </div>
+
+    <!-- SECTION 1: Finding Scenarios -->
+    <div class="guide-section">
+        <h5><span class="gs-num">1</span> How to Spot a Scenario</h5>
+
+        <div class="gc gc-blue">
+            <p>A BDM scenario is any situation where <strong>multiple people or groups</strong> have <strong>different preferences</strong> about an outcome and <strong>some ability to influence</strong> what happens. Ask yourself:</p>
+        </div>
+
+        <div class="thought-grid">
+            <div class="thought-card" style="border-color: #42a5f5;">
+                <div class="tc-icon">🤝</div>
+                <div class="tc-title">Am I Negotiating?</div>
+                <div class="tc-desc">Any negotiation — salary, contract, purchase price, custody, lease terms — is a scenario. There's a range of possible outcomes and multiple parties pulling in different directions.</div>
+            </div>
+            <div class="thought-card" style="border-color: #66bb6a;">
+                <div class="tc-icon">🗳️</div>
+                <div class="tc-title">Is a Group Deciding?</div>
+                <div class="tc-desc">Board votes, committee decisions, family choices, team strategy — whenever a group must converge on one answer from many opinions, that's a scenario.</div>
+            </div>
+            <div class="thought-card" style="border-color: #ffa726;">
+                <div class="tc-icon">⚔️</div>
+                <div class="tc-title">Is There a Conflict?</div>
+                <div class="tc-desc">Legal disputes, political standoffs, competitive strategy, territorial conflicts — any situation with opposing interests and uncertain resolution.</div>
+            </div>
+            <div class="thought-card" style="border-color: #ab47bc;">
+                <div class="tc-icon">🔮</div>
+                <div class="tc-title">Am I Trying to Predict?</div>
+                <div class="tc-desc">Will this policy pass? Will this deal close? Where will this market settle? If you're trying to predict the outcome of a multi-party dynamic, model it.</div>
+            </div>
+        </div>
+
+        <div class="do-dont">
+            <div class="do-col">
+                <h6><i class="material-icons" style="font-size:16px;">check_circle</i> Good Scenarios</h6>
+                <ul>
+                    <li>Buying a car (clear negotiation, multiple stakeholders)</li>
+                    <li>Office relocation (group decision, competing interests)</li>
+                    <li>Trade policy reform (many parties, measurable outcome)</li>
+                    <li>Salary negotiation (you, manager, HR, budget)</li>
+                    <li>Custody arrangement (parents, lawyers, judge)</li>
+                </ul>
+            </div>
+            <div class="dont-col">
+                <h6><i class="material-icons" style="font-size:16px;">cancel</i> Poor Scenarios</h6>
+                <ul>
+                    <li>What should I eat for lunch? (no stakeholder conflict)</li>
+                    <li>Will it rain tomorrow? (no human players)</li>
+                    <li>Is this code bug-free? (not a negotiation)</li>
+                    <li>What's 2+2? (no uncertainty or opposing interests)</li>
+                    <li>Solo decisions with no external influence</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 2: Defining Issues -->
+    <div class="guide-section">
+        <h5><span class="gs-num">2</span> How to Define Your Issue</h5>
+
+        <div class="gc gc-green">
+            <p>The issue is the <strong>specific question</strong> you're trying to predict. The key is framing it as a <strong>spectrum with two clear endpoints</strong> on a 0–100 scale.</p>
+        </div>
+
+        <div class="question-box">
+            <div class="qb-q"><i class="material-icons" style="font-size:16px;">help</i> What is the core decision or outcome at stake?</div>
+            <div class="qb-hint">Strip away the noise. What's the one thing that, when resolved, settles the situation? "How much will I pay?" "What policy will be adopted?" "Who gets custody?"</div>
+        </div>
+
+        <div class="question-box">
+            <div class="qb-q"><i class="material-icons" style="font-size:16px;">help</i> What are the two extreme possible outcomes?</div>
+            <div class="qb-hint">These become your 0 and 100. Pick endpoints that are realistic extremes — not impossible fantasies, but the furthest reasonable positions. Example: 0 = "dealer invoice cost" and 100 = "full MSRP" for a car purchase.</div>
+        </div>
+
+        <div class="question-box">
+            <div class="qb-q"><i class="material-icons" style="font-size:16px;">help</i> Where do things stand today?</div>
+            <div class="qb-hint">This is the status quo — what happens if nobody acts. It's your starting point. If you walk into a car dealership without negotiating, you'd pay close to sticker price — so status quo might be 75-80.</div>
+        </div>
+
+        <div class="gc gc-green" style="margin-top: 12px;">
+            <h6><i class="material-icons" style="font-size:16px;">build</i> Framing Examples</h6>
+            <table class="cal-table">
+                <tr><th>Situation</th><th>Issue</th><th>0 (Min)</th><th>100 (Max)</th><th>Status Quo</th></tr>
+                <tr><td>Buying a car</td><td>Final price</td><td>Dealer invoice</td><td>Full sticker</td><td class="cal-range">75</td></tr>
+                <tr><td>Salary negotiation</td><td>Annual salary</td><td>Current salary (no raise)</td><td>Dream number + title bump</td><td class="cal-range">20</td></tr>
+                <tr><td>Office location</td><td>Work arrangement</td><td>Fully remote</td><td>Mandatory in-office 5 days</td><td class="cal-range">35</td></tr>
+                <tr><td>Climate policy</td><td>Carbon tax rate</td><td>No tax</td><td>Aggressive €150/ton</td><td class="cal-range">25</td></tr>
+                <tr><td>Custody</td><td>Custody split</td><td>Full custody to Parent A</td><td>Full custody to Parent B</td><td class="cal-range">50</td></tr>
+            </table>
+        </div>
+
+        <div class="gc">
+            <h6><i class="material-icons" style="font-size:16px;">info</i> Multi-Issue Scenarios</h6>
+            <p>Some situations have more than one issue at stake. A car negotiation might have <strong>price</strong> AND <strong>trade-in value</strong> AND <strong>interest rate</strong>. You can model each as a separate issue. Players have positions on each one. Start with one issue and add more if needed.</p>
+        </div>
+    </div>
+
+    <!-- SECTION 3: Identifying Players -->
+    <div class="guide-section">
+        <h5><span class="gs-num">3</span> How to Identify the Players</h5>
+
+        <div class="gc gc-orange">
+            <p>This is where most people go wrong — they only think of the obvious 2-3 players. The BDM model works best when you capture <strong>all sources of influence</strong>, including indirect ones.</p>
+        </div>
+
+        <div class="gc gc-orange">
+            <h6><i class="material-icons" style="font-size:16px;">person_search</i> The Player Discovery Framework</h6>
+            <p>Ask yourself each of these questions to find players you might have missed:</p>
+        </div>
+
+        <div class="question-box" style="border-left-color: #ffa726; background: #fff3e0;">
+            <div class="qb-q" style="color: #e65100;"><i class="material-icons" style="font-size:16px;">help</i> Who has DIRECT power over the outcome?</div>
+            <div class="qb-hint">The primary decision-makers. The buyer and seller. The judge. The CEO. These are obvious — start here.</div>
+        </div>
+        <div class="question-box" style="border-left-color: #ffa726; background: #fff3e0;">
+            <div class="qb-q" style="color: #e65100;"><i class="material-icons" style="font-size:16px;">help</i> Who can INFLUENCE the decision-makers?</div>
+            <div class="qb-hint">Advisors, managers, spouses, lobbyists, media. The sales manager who approves the price. The spouse who has to agree. The board member who shapes the CEO's thinking.</div>
+        </div>
+        <div class="question-box" style="border-left-color: #ffa726; background: #fff3e0;">
+            <div class="qb-q" style="color: #e65100;"><i class="material-icons" style="font-size:16px;">help</i> Who provides ALTERNATIVES or COMPETITION?</div>
+            <div class="qb-hint">Competitors, alternative options, market forces. The other dealership. The competing job offer. The rival bidder. Even if they're not at the table, they exert pressure.</div>
+        </div>
+        <div class="question-box" style="border-left-color: #ffa726; background: #fff3e0;">
+            <div class="qb-q" style="color: #e65100;"><i class="material-icons" style="font-size:16px;">help</i> Who REGULATES or CONSTRAINS the outcome?</div>
+            <div class="qb-hint">Government agencies, legal requirements, policies, unions. The attorney general who must approve a merger. The zoning board. OSHA. The judge's precedent constraints.</div>
+        </div>
+        <div class="question-box" style="border-left-color: #ffa726; background: #fff3e0;">
+            <div class="qb-q" style="color: #e65100;"><i class="material-icons" style="font-size:16px;">help</i> Who sets EXPECTATIONS or ANCHORS?</div>
+            <div class="qb-hint">Data sources, benchmarks, public opinion. KBB/TrueCar for car prices. Glassdoor for salaries. Industry standards. Public sentiment. These aren't negotiators, but they anchor what everyone considers reasonable.</div>
+        </div>
+
+        <div class="gc" style="margin-top: 12px;">
+            <h6><i class="material-icons" style="font-size:16px;">groups</i> Player Types</h6>
+            <table class="cal-table">
+                <tr><th>Type</th><th>Description</th><th>Examples</th></tr>
+                <tr><td><strong>Individual</strong></td><td>A single person acting on their own interests</td><td>CEO, buyer, judge, manager</td></tr>
+                <tr><td><strong>Organization</strong></td><td>A company or entity acting as one unit</td><td>Competitor firm, franchise company, vendor</td></tr>
+                <tr><td><strong>Government</strong></td><td>A government body or agency</td><td>FTC, state AG, foreign government, city council</td></tr>
+                <tr><td><strong>Coalition/Bloc</strong></td><td>A group of aligned actors treated as one</td><td>Employee council, industry lobby, NGO coalition</td></tr>
+                <tr><td><strong>Institution</strong></td><td>A system or data source (non-human anchor)</td><td>KBB pricing, legal precedent, market index</td></tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- SECTION 4: The Five Numbers -->
+    <div class="guide-section">
+        <h5><span class="gs-num">4</span> How to Set the Five Numbers</h5>
+
+        <div class="gc gc-purple">
+            <p>This is the hardest part — but also where the model shines. You're translating messy human judgments into precise numbers. Here's how to think about each one.</p>
+        </div>
+
+        <!-- POSITION -->
+        <div class="num-section">
+            <div class="num-header nh-blue">
+                <i class="material-icons">gps_fixed</i>
+                <div>
+                    <div class="nh-title">Position (0–100)</div>
+                    <div class="nh-question">"Where does this player want the outcome to land?"</div>
+                </div>
+            </div>
+            <div class="gc gc-blue">
+                <p><strong>Think of it as:</strong> If this player could dictate the outcome unilaterally, where would they put it on the scale?</p>
+                <p><strong>How to estimate:</strong></p>
+                <ul>
+                    <li>What has this player publicly stated or demanded?</li>
+                    <li>What would serve their self-interest best?</li>
+                    <li>Look at their past behavior in similar situations</li>
+                    <li>For institutions/data sources: what does the data say?</li>
+                </ul>
+            </div>
+            <div class="scale-builder">
+                <strong style="font-size: 0.85rem; color: #455a64;">Example: Car Price Negotiation</strong>
+                <div class="sb-row" style="margin-top: 8px;">
+                    <span class="sb-label">Buyer</span>
+                    <div class="sb-bar" style="background: linear-gradient(to right, #bbdefb, #1565c0);">
+                        <div class="sb-marker" style="left: 18%;">20</div>
+                    </div>
+                    <span class="sb-value" style="color: #1565c0;">20</span>
+                </div>
+                <div class="sb-row">
+                    <span class="sb-label">Online Data</span>
+                    <div class="sb-bar" style="background: linear-gradient(to right, #bbdefb, #1565c0);">
+                        <div class="sb-marker" style="left: 40%;">42</div>
+                    </div>
+                    <span class="sb-value" style="color: #1565c0;">42</span>
+                </div>
+                <div class="sb-row">
+                    <span class="sb-label">Sales Rep</span>
+                    <div class="sb-bar" style="background: linear-gradient(to right, #bbdefb, #1565c0);">
+                        <div class="sb-marker" style="left: 73%;">75</div>
+                    </div>
+                    <span class="sb-value" style="color: #1565c0;">75</span>
+                </div>
+                <div class="sb-row">
+                    <span class="sb-label">Manager</span>
+                    <div class="sb-bar" style="background: linear-gradient(to right, #bbdefb, #1565c0);">
+                        <div class="sb-marker" style="left: 83%;">85</div>
+                    </div>
+                    <span class="sb-value" style="color: #1565c0;">85</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- CAPABILITY -->
+        <div class="num-section">
+            <div class="num-header nh-green">
+                <i class="material-icons">flash_on</i>
+                <div>
+                    <div class="nh-title">Capability (0–100)</div>
+                    <div class="nh-question">"How much power do they have to shape the outcome?"</div>
+                </div>
+            </div>
+            <div class="gc gc-green">
+                <p><strong>Think of it as:</strong> If there were a tug-of-war between all players, how much rope could this player pull?</p>
+                <p><strong>Key principle:</strong> This is RELATIVE. All players' capabilities are compared against each other. Don't default to 50 for everyone — spread them out.</p>
+            </div>
+            <table class="cal-table">
+                <tr><th>Range</th><th>Description</th><th>Signals</th></tr>
+                <tr><td class="cal-range">80–100</td><td>Dominant — near-veto power</td><td>Final approval authority, can unilaterally block or force outcome</td></tr>
+                <tr><td class="cal-range">60–79</td><td>Very influential</td><td>Key decision-maker, controls critical resources or information</td></tr>
+                <tr><td class="cal-range">40–59</td><td>Moderate influence</td><td>Has a seat at the table, voice is heard but not decisive</td></tr>
+                <tr><td class="cal-range">20–39</td><td>Limited but real</td><td>Indirect leverage, can cause problems or provide alternatives</td></tr>
+                <tr><td class="cal-range">1–19</td><td>Minimal — mostly symbolic</td><td>Public opinion, background data, weak stakeholders</td></tr>
+            </table>
+            <div class="gc" style="margin-top: 8px;">
+                <h6><i class="material-icons" style="font-size:16px;">warning</i> Common Mistake</h6>
+                <p>Even the United States in a global geopolitical scenario typically rates <strong>70–85</strong>, not 100. Nobody has absolute power. If you rate someone at 100, you're saying the outcome is predetermined — why bother modeling?</p>
+            </div>
+        </div>
+
+        <!-- SALIENCE -->
+        <div class="num-section">
+            <div class="num-header nh-orange">
+                <i class="material-icons">whatshot</i>
+                <div>
+                    <div class="nh-title">Salience (0–100)</div>
+                    <div class="nh-question">"How much do they care about this specific issue?"</div>
+                </div>
+            </div>
+            <div class="gc gc-orange">
+                <p><strong>Think of it as:</strong> Out of everything on this player's plate right now, how much attention and energy will they devote to THIS issue?</p>
+                <p><strong>This is the BDM secret weapon.</strong> A powerful player with low salience is like a sleeping giant — they <em>could</em> influence the outcome but <em>won't</em> because they have bigger priorities.</p>
+                <p><strong>Capability × Salience = Actual Influence.</strong> This product is what really matters.</p>
+            </div>
+            <div class="question-box" style="border-left-color: #ffa726; background: #fff3e0;">
+                <div class="qb-q" style="color: #e65100;"><i class="material-icons" style="font-size:16px;">help</i> Ask yourself these questions:</div>
+                <div class="qb-hint">
+                    • Is this issue their #1 priority, or one of many?<br>
+                    • Do they have a personal stake (money, reputation, career)?<br>
+                    • How much time are they spending on this vs. other things?<br>
+                    • Would they fight hard or give in to focus on something else?<br>
+                    • Is there a deadline creating urgency for them?
+                </div>
+            </div>
+            <table class="cal-table">
+                <tr><th>Range</th><th>What it means</th><th>Example</th></tr>
+                <tr><td class="cal-range">85–100</td><td>This is their top priority — they'll fight to the end</td><td>You buying a house (huge financial commitment)</td></tr>
+                <tr><td class="cal-range">60–84</td><td>Very important but not the only thing on their plate</td><td>Sales rep closing a deal (wants the commission but has other leads)</td></tr>
+                <tr><td class="cal-range">35–59</td><td>Moderate — they'll engage but won't go to the mat</td><td>A manager who has input on a hire but isn't the final decision-maker</td></tr>
+                <tr><td class="cal-range">10–34</td><td>Background concern — will weigh in but won't push hard</td><td>Online pricing data (exists passively, doesn't "try")</td></tr>
+                <tr><td class="cal-range">1–9</td><td>Barely relevant — technically a stakeholder but essentially checked out</td><td>A distant board member on a minor operational decision</td></tr>
+            </table>
+        </div>
+
+        <!-- FLEXIBILITY -->
+        <div class="num-section">
+            <div class="num-header nh-purple">
+                <i class="material-icons">swap_horiz</i>
+                <div>
+                    <div class="nh-title">Flexibility (0–100)</div>
+                    <div class="nh-question">"How willing are they to compromise under pressure?"</div>
+                </div>
+            </div>
+            <div class="gc gc-purple">
+                <p><strong>Think of it as:</strong> When other players push back, does this player dig in or start moving toward a middle ground?</p>
+                <p>Flexibility affects <strong>how fast positions shift</strong> during the simulation. Rigid players hold their ground longer but may end up isolated. Flexible players adapt but may concede too much.</p>
+            </div>
+            <div class="question-box" style="border-left-color: #ab47bc; background: #f3e5f5;">
+                <div class="qb-q" style="color: #8e24aa;"><i class="material-icons" style="font-size:16px;">help</i> Factors that increase flexibility:</div>
+                <div class="qb-hint">
+                    • No hard constraints (can offer a range, not a fixed number)<br>
+                    • Values the relationship over this specific outcome<br>
+                    • Has a weak BATNA (best alternative to negotiated agreement)<br>
+                    • Under time pressure to resolve<br>
+                    • Open-minded personality or collaborative culture
+                </div>
+            </div>
+            <div class="question-box" style="border-left-color: #ab47bc; background: #f3e5f5;">
+                <div class="qb-q" style="color: #8e24aa;"><i class="material-icons" style="font-size:16px;">help</i> Factors that decrease flexibility:</div>
+                <div class="qb-hint">
+                    • Bound by policy, law, or mandate (a regulator enforcing a rule)<br>
+                    • Public commitment to a position (can't back down without losing face)<br>
+                    • Strong BATNA (can easily walk away)<br>
+                    • Ideological conviction (this is a matter of principle)<br>
+                    • Data-based anchor (the number is what it is — like KBB pricing)
+                </div>
+            </div>
+        </div>
+
+        <!-- RISK PROFILE -->
+        <div class="num-section">
+            <div class="num-header nh-red">
+                <i class="material-icons">casino</i>
+                <div>
+                    <div class="nh-title">Risk Profile</div>
+                    <div class="nh-question">"How do they handle uncertain confrontations?"</div>
+                </div>
+            </div>
+            <div class="gc gc-red">
+                <p><strong>Think of it as:</strong> When the expected utility of challenging another player is uncertain, does this player lean toward caution or aggression?</p>
+            </div>
+            <div class="thought-grid">
+                <div class="thought-card" style="border-color: #66bb6a; background: #f1f8e9;">
+                    <div class="tc-icon">🛡️</div>
+                    <div class="tc-title">Risk Averse</div>
+                    <div class="tc-desc"><strong>Plays it safe.</strong> Would rather take a guaranteed smaller win than gamble on a bigger one. Only challenges when the odds are strongly favorable.<br><br><em>Who:</em> Banks, insurance companies, career bureaucrats, anyone with a lot to lose.</div>
+                </div>
+                <div class="thought-card" style="border-color: #42a5f5; background: #e3f2fd;">
+                    <div class="tc-icon">⚖️</div>
+                    <div class="tc-title">Risk Neutral</div>
+                    <div class="tc-desc"><strong>Plays the odds.</strong> Weighs potential gains and losses equally. Challenges whenever expected value is positive — the rational default.<br><br><em>Who:</em> Data-driven decision-makers, experienced negotiators, most professionals. <strong>When in doubt, use this.</strong></div>
+                </div>
+                <div class="thought-card" style="border-color: #ef5350; background: #ffebee;">
+                    <div class="tc-icon">🎲</div>
+                    <div class="tc-title">Risk Acceptant</div>
+                    <div class="tc-desc"><strong>Swings for the fences.</strong> Willing to risk a loss for the chance of a big win. Challenges aggressively even when odds are uncertain.<br><br><em>Who:</em> Startup founders, political mavericks, activists, desperate players with nothing to lose.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 5: Putting It All Together -->
+    <div class="guide-section">
+        <h5><span class="gs-num">5</span> Putting It All Together</h5>
+
+        <div class="gc gc-teal">
+            <h6><i class="material-icons" style="font-size:16px;">checklist</i> Pre-Simulation Checklist</h6>
+            <ul>
+                <li><strong>Issue defined?</strong> — Clear 0–100 scale with labeled endpoints and a status quo position</li>
+                <li><strong>3+ players identified?</strong> — Including indirect influencers, not just the obvious ones</li>
+                <li><strong>All positions set?</strong> — Every player has a number for every issue</li>
+                <li><strong>Capabilities spread out?</strong> — Not everyone at 50. Someone should be high, someone low</li>
+                <li><strong>Salience varies?</strong> — Not everyone cares equally. Who's most invested?</li>
+                <li><strong>Flexibility makes sense?</strong> — Anchors are rigid, dealmakers are flexible</li>
+                <li><strong>Risk profiles considered?</strong> — Most are neutral, but who's cautious and who's aggressive?</li>
+            </ul>
+        </div>
+
+        <div class="gc gc-teal">
+            <h6><i class="material-icons" style="font-size:16px;">tips_and_updates</i> Pro Tips</h6>
+            <ul>
+                <li><strong>Don't overthink exact numbers.</strong> Being in the right range (±10) matters more than hitting the exact number. The model is robust to small variations.</li>
+                <li><strong>Use the AI Research button.</strong> For real-world scenarios, let the AI research players and suggest parameters.</li>
+                <li><strong>Run multiple simulations.</strong> Use "What-If" branches to test different assumptions and compare outcomes.</li>
+                <li><strong>Look at the Stakeholder Map.</strong> If all your bubbles are in the same area, you might be missing a dissenting voice.</li>
+                <li><strong>Trust the model's surprises.</strong> When the prediction differs from your gut feeling, investigate why — the model may be seeing something you're not.</li>
+                <li><strong>Iterate.</strong> Your first scenario won't be perfect. Run it, read the analysis, adjust parameters, and run again.</li>
+            </ul>
+        </div>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="{% url 'chat_new' %}" class="btn-large waves-effect waves-light" style="border-radius: 10px; background: linear-gradient(135deg, #42a5f5, #1e88e5); margin-right: 12px;">
+                <i class="material-icons left">smart_toy</i>Build a Scenario with AI
+            </a>
+            <a href="{% url 'case_study_list' %}" class="btn-large waves-effect waves-light" style="border-radius: 10px; background: linear-gradient(135deg, #66bb6a, #43a047);">
+                <i class="material-icons left">menu_book</i>See Use Cases
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

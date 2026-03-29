@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from apps.api.views import health_check, auth_callback
 from rest_framework_simplejwt.views import TokenRefreshView
-from apps.core.views import LandingPageView, ApplicationConfigView, MethodologyView, CaseStudyListView, CaseStudyDetailView
+from apps.core.views import LandingPageView, ApplicationConfigView, MethodologyView, ScenarioGuideView, CaseStudyListView, CaseStudyDetailView
 from apps.users.views import LoginView, RegisterView, LogoutView
 from apps.rbac.views import (
     UserListView, UserCreateView, UserEditView, UserDeleteView,
@@ -20,6 +20,7 @@ urlpatterns = [
     path('', LandingPageView.as_view(), name='landing'),
     path('application-config/', ApplicationConfigView.as_view(), name='application_config'),
     path('methodology/', MethodologyView.as_view(), name='methodology'),
+    path('scenario-guide/', ScenarioGuideView.as_view(), name='scenario_guide'),
     path('case-studies/', CaseStudyListView.as_view(), name='case_study_list'),
     path('case-studies/<uuid:scenario_id>/', CaseStudyDetailView.as_view(), name='case_study_detail'),
     path('login/', LoginView.as_view(), name='login'),

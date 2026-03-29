@@ -33,6 +33,7 @@
             margin: 0;
             font-size: 0.8rem;
             line-height: 1.4;
+            text-align: center;
         }
 
         /* Navbar is always 64px tall */
@@ -224,12 +225,17 @@
 
         <!-- Methodology -->
         <li class="{% if request.resolver_match.url_name == 'methodology' %}active{% endif %}">
-            <a href="{% url 'methodology' %}"><i class="material-icons">school</i>BDM Methodology</a>
+            <a href="{% url 'methodology' %}"><i class="material-icons">school</i>Methodology</a>
+        </li>
+
+        <!-- Scenario Guide -->
+        <li class="{% if request.resolver_match.url_name == 'scenario_guide' %}active{% endif %}">
+            <a href="{% url 'scenario_guide' %}"><i class="material-icons">map</i>Scenario Guide</a>
         </li>
 
         <!-- Case Studies -->
         <li class="{% if 'case_study' in request.resolver_match.url_name %}active{% endif %}">
-            <a href="{% url 'case_study_list' %}"><i class="material-icons">menu_book</i>BDM Use Cases</a>
+            <a href="{% url 'case_study_list' %}"><i class="material-icons">menu_book</i>Use Cases</a>
         </li>
 
         {% if user.is_superuser %}
