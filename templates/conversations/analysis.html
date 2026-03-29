@@ -37,12 +37,20 @@
     <div class="page-hero" style="text-align: left; padding: 16px 22px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
         <div>
             <h4 style="font-size: 1.3rem; justify-content: flex-start;">
-                <i class="material-icons">insights</i> AI Strategic Analysis
+                <i class="material-icons">insights</i>
+                {% if optimize_player %}
+                Strategy for {{ optimize_player.name }}
+                {% else %}
+                AI Strategic Analysis
+                {% endif %}
             </h4>
             <p style="margin: 2px 0 0 0; font-size: 0.85rem;">
                 {{ scenario.title }}
                 {% if sim_run %}
                 <span style="opacity: 0.6;"> — Run {{ sim_run.created_at|date:"M d, Y H:i" }}</span>
+                {% endif %}
+                {% if optimize_player %}
+                <br><span style="opacity: 0.8;"><i class="material-icons" style="font-size: 14px; vertical-align: middle;">gps_fixed</i> Optimizing outcome for <strong>{{ optimize_player.name }}</strong></span>
                 {% endif %}
             </p>
         </div>
@@ -51,7 +59,7 @@
                 <i class="material-icons left">history</i>History
             </a>
             {% if cached_report %}
-            <a href="{% url 'simulation_analysis' scenario.pk %}?refresh=1" class="btn-small waves-effect" style="background: rgba(255,255,255,0.15); color: #fff; border-radius: 6px;" id="regenerate-btn">
+            <a href="{% url 'simulation_analysis' scenario.pk %}?refresh=1{% if optimize_for %}&optimize_for={{ optimize_for }}{% endif %}" class="btn-small waves-effect" style="background: rgba(255,255,255,0.15); color: #fff; border-radius: 6px;" id="regenerate-btn">
                 <i class="material-icons left">refresh</i>Regenerate
             </a>
             {% endif %}
@@ -75,7 +83,13 @@
                         <div class="circle-clipper right"><div class="circle"></div></div>
                     </div>
                 </div>
-                <p class="grey-text" style="margin-top: 16px;">Analyzing simulation results with AI...</p>
+                <p class="grey-text" style="margin-top: 16px;">
+                    {% if optimize_player %}
+                    Building strategy for <strong>{{ optimize_player.name }}</strong>...
+                    {% else %}
+                    Analyzing simulation results with AI...
+                    {% endif %}
+                </p>
                 <p class="grey-text text-lighten-1" style="font-size: 0.85rem;">This may include web research for real-world context.</p>
             </div>
             {% endif %}
@@ -111,8 +125,13 @@
     }
 
     // No cached report or refreshing — fetch from server
+    var params = new URLSearchParams(window.location.search);
     var url = '{% url "simulation_analysis" scenario.pk %}';
-    if (refreshParam) url += '?refresh=1';
+    var qParts = [];
+    if (refreshParam) qParts.push('refresh=1');
+    var optimizeFor = params.get('optimize_for');
+    if (optimizeFor) qParts.push('optimize_for=' + optimizeFor);
+    if (qParts.length) url += '?' + qParts.join('&');
 
     fetch(url, {
         method: 'POST',

@@ -551,13 +551,29 @@
                 </div>
             </div>
             {% endfor %}
-            <div style="margin-top: 16px; text-align: center; display: flex; justify-content: center; gap: 8px;">
-                <a href="{% url 'simulation_analysis' scenario.pk %}" class="btn blue-grey darken-2 waves-effect waves-light">
-                    <i class="material-icons left">insights</i>AI Strategic Analysis
-                </a>
-                <a href="{% url 'analysis_history' scenario.pk %}" class="btn blue-grey lighten-1 waves-effect waves-light">
-                    <i class="material-icons left">history</i>Analysis History
-                </a>
+            <!-- Optimize For / Analysis -->
+            <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid #eee;">
+                <div style="display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;">
+                    <span style="font-size: 0.85rem; font-weight: 600; color: #455a64;">
+                        <i class="material-icons tiny" style="vertical-align: middle;">gps_fixed</i> Optimize for:
+                    </span>
+                    <select id="optimize-player" class="browser-default" style="height: 2rem; border: 2px solid #42a5f5; border-radius: 6px; padding: 0 10px; font-size: 0.85rem; min-width: 180px; color: #37474f;">
+                        <option value="">General Analysis (no player focus)</option>
+                        {% for player in players %}
+                        <option value="{{ player.pk }}">{{ player.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <a href="#" id="run-analysis-btn" class="btn waves-effect waves-light" style="border-radius: 8px; background: linear-gradient(135deg, #42a5f5, #1e88e5);"
+                       onclick="goToAnalysis(); return false;">
+                        <i class="material-icons left">insights</i>AI Strategic Analysis
+                    </a>
+                    <a href="{% url 'analysis_history' scenario.pk %}" class="btn blue-grey lighten-1 waves-effect waves-light" style="border-radius: 8px;">
+                        <i class="material-icons left">history</i>History
+                    </a>
+                </div>
+                <p style="text-align: center; font-size: 0.78rem; color: #9e9e9e; margin: 6px 0 0 0;">
+                    Select a player to get personalized strategy recommendations from their perspective.
+                </p>
             </div>
         </div>
     </div>
@@ -833,6 +849,15 @@ document.querySelectorAll('.info-popup').forEach(function(p) {
 });
 
 // ── AI Research ──
+// ── Optimize For Analysis ──
+function goToAnalysis() {
+    var select = document.getElementById('optimize-player');
+    var playerId = select.value;
+    var url = '{% url "simulation_analysis" scenario.pk %}';
+    if (playerId) url += '?optimize_for=' + playerId;
+    window.location.href = url;
+}
+
 function runAIResearch() {
     var btn = document.getElementById('ai-research-btn');
     var status = document.getElementById('ai-research-status');

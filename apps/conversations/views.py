@@ -78,9 +78,14 @@ class SimulationAnalysisView(LoginRequiredMixin, View):
     def post(self, request, scenario_id):
         scenario = get_object_or_404(Scenario, pk=scenario_id, owner=request.user)
         force_refresh = request.GET.get("refresh") == "1"
+        optimize_for = request.GET.get("optimize_for", "")
 
         try:
-            analysis = analyze_simulation(scenario, request.user, force_refresh=force_refresh)
+            analysis = analyze_simulation(
+                scenario, request.user,
+                force_refresh=force_refresh,
+                optimize_for_player_id=optimize_for or None,
+            )
             return JsonResponse({"analysis": analysis})
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
@@ -88,12 +93,18 @@ class SimulationAnalysisView(LoginRequiredMixin, View):
     def get(self, request, scenario_id):
         """Show analysis page. If a cached report exists, render it directly."""
         from apps.engine.models import SimulationRun
+        from apps.scenarios.models import Player
 
         scenario = get_object_or_404(
             Scenario.objects.select_related("scenario_type", "status"),
             pk=scenario_id,
             owner=request.user,
         )
+
+        optimize_for = request.GET.get("optimize_for", "")
+        optimize_player = None
+        if optimize_for:
+            optimize_player = Player.objects.filter(pk=optimize_for, scenario=scenario).first()
 
         # Check for specific run or default to latest
         run_id = request.GET.get("run")
@@ -106,12 +117,17 @@ class SimulationAnalysisView(LoginRequiredMixin, View):
                 scenario=scenario,
             ).select_related("status").first()
 
-        cached_report = sim_run.analysis_report if sim_run else ""
+        # Only use cached report for general analysis (no player focus)
+        cached_report = ""
+        if sim_run and not optimize_for:
+            cached_report = sim_run.analysis_report or ""
 
         return render(request, "conversations/analysis.html", {
             "scenario": scenario,
             "sim_run": sim_run,
             "cached_report": cached_report,
+            "optimize_for": optimize_for,
+            "optimize_player": optimize_player,
         })
 
 

@@ -458,9 +458,11 @@ def analyze_simulation(
     scenario: Scenario,
     user: Any,
     force_refresh: bool = False,
+    optimize_for_player_id: str | None = None,
 ) -> str:
     """Run LLM analysis on simulation results. Returns analysis text.
-    Caches the result on SimulationRun.analysis_report.
+    Caches general analysis on SimulationRun.analysis_report.
+    Player-specific analyses are always generated fresh (not cached).
     """
     from apps.engine.models import SimulationRun
 
@@ -471,8 +473,8 @@ def analyze_simulation(
     if not latest_sim:
         return "No simulation results available. Run a simulation first."
 
-    # Return cached analysis if available
-    if latest_sim.analysis_report and not force_refresh:
+    # Return cached analysis if available (only for general, non-player-specific analysis)
+    if latest_sim.analysis_report and not force_refresh and not optimize_for_player_id:
         return latest_sim.analysis_report
 
     # Build context about the scenario and results
@@ -550,6 +552,61 @@ def analyze_simulation(
 **Round-by-Round Movement**:
 {round_text}
 
+"""
+
+    # Add player-specific optimization instructions
+    if optimize_for_player_id:
+        opt_player = Player.objects.filter(pk=optimize_for_player_id, scenario=scenario).first()
+        if opt_player:
+            opt_positions = PlayerPosition.objects.filter(
+                player=opt_player, is_active=True,
+            ).select_related("issue", "risk_profile")
+            opt_detail = "\n".join(
+                f"  Issue '{pp.issue.title}': their ideal position={pp.position}, "
+                f"capability={pp.capability}, salience={pp.salience}, "
+                f"flexibility={pp.flexibility}, risk={pp.risk_profile.label}"
+                for pp in opt_positions
+            )
+            context_message += f"""
+
+**OPTIMIZE FOR: {opt_player.name}**
+You are now acting as a strategic advisor specifically for **{opt_player.name}** ({opt_player.description}).
+
+Their current parameters:
+{opt_detail}
+
+Please provide your analysis entirely from {opt_player.name}'s perspective:
+
+1. **Gap Analysis**: How far is the predicted outcome from {opt_player.name}'s ideal position on each issue? Quantify the gap.
+
+2. **Power Assessment**: How does {opt_player.name}'s capability × salience compare to other players? Where do they rank in effective influence? Are they punching above or below their weight?
+
+3. **Coalition Map**: Which other players have positions closest to {opt_player.name}'s ideal? Who are natural allies? Who are the main opponents?
+
+4. **5 Specific Strategic Moves**: For each recommendation:
+   - What exactly should {opt_player.name} do? (target a specific player, build an alliance, increase leverage, etc.)
+   - What parameter would this change? (e.g., "increase your capability from X to Y by doing Z")
+   - Estimated impact: how much would the predicted outcome shift toward {opt_player.name}'s ideal?
+   - Difficulty/feasibility rating (1-5)
+   - Potential counter-moves from opponents
+
+5. **What-If Scenarios**: Suggest 2-3 specific parameter changes {opt_player.name} could test using the What-If branch feature. Be precise: "Change your capability from X to Y and Player Z's salience from A to B."
+
+6. **Risk Assessment**: What's the biggest risk to {opt_player.name}'s position? What could opponents do to undermine their strategy?
+
+7. Use web_search if this involves real-world entities — look for current leverage opportunities, relationships, or events that {opt_player.name} could exploit."""
+        else:
+            context_message += """
+
+Please provide:
+1. A clear explanation of what the predicted outcome means in context
+2. Analysis of the strategic dynamics — why players moved as they did
+3. Identification of the key leverage points and swing players
+4. 3-5 specific, actionable recommendations for engineering a better outcome
+5. Use web_search if this involves real-world entities"""
+    else:
+        context_message += """
+
 Please provide:
 1. A clear explanation of what the predicted outcome means in context
 2. Analysis of the strategic dynamics — why players moved as they did
@@ -576,8 +633,10 @@ Please provide:
             analysis_text = msg.content if isinstance(msg.content, str) else str(msg.content)
             break
 
-    latest_sim.analysis_report = analysis_text
-    latest_sim.save(update_fields=["analysis_report", "updated_at"])
+    # Only cache general analysis, not player-specific ones
+    if not optimize_for_player_id:
+        latest_sim.analysis_report = analysis_text
+        latest_sim.save(update_fields=["analysis_report", "updated_at"])
 
     return analysis_text
 
