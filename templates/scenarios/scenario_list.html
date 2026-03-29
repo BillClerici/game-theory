@@ -69,30 +69,23 @@
     {% endfor %}
     {% endif %}
 
-    <!-- Stat strip -->
-    {% if object_list %}
-    <div class="stat-strip">
-        <div class="stat-mini" style="background: linear-gradient(135deg, #42a5f5, #1e88e5);">
-            <span class="sm-num">{{ object_list|length }}</span> Total
-        </div>
-    </div>
-    {% endif %}
-
     <!-- Filters + New button -->
     <div class="filter-bar">
-        <form method="get" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; flex: 1;">
+        <form method="get" style="display: flex; gap: 10px; align-items: center; flex: 1; min-width: 0;">
             <i class="material-icons" style="color: #9e9e9e; font-size: 1.2rem;">search</i>
-            <input name="q" type="text" value="{{ search_query }}" placeholder="Search scenarios...">
-            <select name="status" class="browser-default">
+            <input name="q" type="text" value="{{ search_query }}" placeholder="Search scenarios..." style="flex: 2; min-width: 160px;">
+            <select name="status" class="browser-default" style="flex: 0 0 140px; width: 140px;">
                 <option value="">All Statuses</option>
                 {% for opt in status_options %}
                 <option value="{{ opt.code }}" {% if current_status == opt.code %}selected{% endif %}>{{ opt.label }}</option>
                 {% endfor %}
             </select>
-            <button type="submit" class="btn-small blue-grey darken-1 waves-effect" style="border-radius:6px;">Filter</button>
+            <button type="submit" class="btn-small blue-grey darken-1 waves-effect" style="border-radius:6px; padding: 0 20px; white-space: nowrap;">
+                <i class="material-icons left" style="margin-right: 4px;">filter_list</i>Filter
+            </button>
         </form>
-        <a href="{% url 'chat_new' %}" class="btn waves-effect waves-light" style="border-radius:8px; white-space:nowrap; background: linear-gradient(135deg, #42a5f5, #1e88e5);">
-            <i class="material-icons left">add</i>New Scenario
+        <a href="{% url 'chat_new' %}" class="btn-small waves-effect waves-light" style="border-radius:8px; white-space:nowrap; background: linear-gradient(135deg, #42a5f5, #1e88e5); padding: 0 16px;">
+            <i class="material-icons left" style="margin-right: 4px;">add</i>New
         </a>
     </div>
 
