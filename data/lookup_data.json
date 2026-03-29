@@ -1,0 +1,1292 @@
+[
+{
+  "model": "lookup.lookupvalue",
+  "pk": "0642bbff-4a8f-4de9-aed7-2037adfa04b8",
+  "fields": {
+    "created_at": "2026-03-28T15:22:32.745Z",
+    "updated_at": "2026-03-28T15:22:32.745Z",
+    "is_active": true,
+    "parent": "5f624618-61f8-4683-9a2c-70e7449aa452",
+    "code": "ENTERPRISE",
+    "label": "Enterprise",
+    "description": "",
+    "sort_order": 0,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "076b2b51-5642-4d1b-bfe6-bcfa5fd184f9",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.515Z",
+    "updated_at": "2026-03-28T16:09:03.515Z",
+    "is_active": true,
+    "parent": "73487be0-5e45-4ce1-a66d-78418a55d566",
+    "code": "SCENARIO_BUILDER",
+    "label": "Scenario Builder",
+    "description": "",
+    "sort_order": 0,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "0a44fe40-a419-4103-820e-41940f578a4c",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.422Z",
+    "updated_at": "2026-03-28T16:09:03.422Z",
+    "is_active": true,
+    "parent": "e0ae9a6b-f087-4536-b969-5e94b4489fc8",
+    "code": "ANALYST",
+    "label": "Analyst",
+    "description": "",
+    "sort_order": 1,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "0b828dc2-4824-4aa3-bce7-3073f17e09c2",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.432Z",
+    "updated_at": "2026-03-28T16:09:03.432Z",
+    "is_active": true,
+    "parent": "b742ec0e-e171-44be-ad92-92b2935856db",
+    "code": "FREE",
+    "label": "Free",
+    "description": "",
+    "sort_order": 0,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "0ee9f224-4dda-4ae2-8ebc-8ff0702a0b7c",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.447Z",
+    "updated_at": "2026-03-28T16:09:03.447Z",
+    "is_active": true,
+    "parent": "db04eab3-56ab-457f-9e41-725b98a6d9b2",
+    "code": "QUEUED",
+    "label": "Queued",
+    "description": "",
+    "sort_order": 0,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "121e2fd8-f619-412e-a522-7bd8e6e257de",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.418Z",
+    "updated_at": "2026-03-28T16:09:03.418Z",
+    "is_active": true,
+    "parent": "e0ae9a6b-f087-4536-b969-5e94b4489fc8",
+    "code": "ADMIN",
+    "label": "Admin",
+    "description": "",
+    "sort_order": 0,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "123704f5-cb98-41f2-90eb-499272a21438",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.440Z",
+    "updated_at": "2026-03-28T16:09:03.440Z",
+    "is_active": true,
+    "parent": "b742ec0e-e171-44be-ad92-92b2935856db",
+    "code": "ENTERPRISE",
+    "label": "Enterprise",
+    "description": "",
+    "sort_order": 2,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "1767aac6-46a2-4030-a610-7b4b88412d0a",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.411Z",
+    "updated_at": "2026-03-28T16:09:03.411Z",
+    "is_active": true,
+    "parent": "2df3ade1-5e69-4755-b508-0608314b6f18",
+    "code": "RISK_ACCEPTANT",
+    "label": "Risk Acceptant",
+    "description": "",
+    "sort_order": 2,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "19a0f36b-c506-4201-9c2a-a43f45d6aae7",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.348Z",
+    "updated_at": "2026-03-28T16:09:03.348Z",
+    "is_active": true,
+    "parent": "a581f0bf-2f49-49f4-a03c-ed8dae52adac",
+    "code": "NEGOTIATION",
+    "label": "Negotiation",
+    "description": "",
+    "sort_order": 5,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "1ab0712b-2a16-49d3-a797-aa7cab049897",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.529Z",
+    "updated_at": "2026-03-28T16:09:03.529Z",
+    "is_active": true,
+    "parent": null,
+    "code": "CONVERSATION_STATUS",
+    "label": "Conversation Status",
+    "description": "",
+    "sort_order": 0,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "1d3a2c97-f26d-4f88-9b5b-f61cc78a035d",
+  "fields": {
+    "created_at": "2026-03-28T15:22:32.808Z",
+    "updated_at": "2026-03-28T15:22:32.808Z",
+    "is_active": true,
+    "parent": "d6e4636f-ccde-4666-b28e-19002a889e20",
+    "code": "PENDING",
+    "label": "Pending",
+    "description": "",
+    "sort_order": 2,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "21bab25e-1953-4d3c-9e83-a016e7a71222",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.436Z",
+    "updated_at": "2026-03-28T16:09:03.436Z",
+    "is_active": true,
+    "parent": "b742ec0e-e171-44be-ad92-92b2935856db",
+    "code": "PRO",
+    "label": "Pro",
+    "description": "",
+    "sort_order": 1,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "25e50c5b-9c18-4d50-b0b7-248d1739a78e",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.457Z",
+    "updated_at": "2026-03-28T16:09:03.457Z",
+    "is_active": true,
+    "parent": "db04eab3-56ab-457f-9e41-725b98a6d9b2",
+    "code": "FAILED",
+    "label": "Failed",
+    "description": "",
+    "sort_order": 3,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "26490c6c-c43f-4c4c-8ebf-c608acd25499",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.481Z",
+    "updated_at": "2026-03-28T16:09:03.481Z",
+    "is_active": true,
+    "parent": "bf8fc9e0-ffc7-47a8-9a5e-3b7fc6509341",
+    "code": "USER_DEFINED",
+    "label": "User Defined",
+    "description": "",
+    "sort_order": 1,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "28c37704-600b-4d1d-9f3a-942ff9746a20",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.497Z",
+    "updated_at": "2026-03-28T16:09:03.497Z",
+    "is_active": true,
+    "parent": "d3cae974-3a95-4af1-aa9e-245538bd65c6",
+    "code": "COALITION_FRACTURE",
+    "label": "Coalition Fracture",
+    "description": "",
+    "sort_order": 2,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "2b7b1cf2-e13a-4251-b821-dbd295f9b8f7",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.351Z",
+    "updated_at": "2026-03-28T16:09:03.351Z",
+    "is_active": true,
+    "parent": "a581f0bf-2f49-49f4-a03c-ed8dae52adac",
+    "code": "PERSONAL",
+    "label": "Personal",
+    "description": "",
+    "sort_order": 6,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "2c361004-3985-4f4e-9dcf-bb8eaafbcbc4",
+  "fields": {
+    "created_at": "2026-03-28T15:22:32.794Z",
+    "updated_at": "2026-03-28T15:22:32.794Z",
+    "is_active": true,
+    "parent": "fca2f09f-23be-444a-aa2b-fbbe07e49a86",
+    "code": "RETAIL",
+    "label": "Retail",
+    "description": "",
+    "sort_order": 3,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "2d49d9cc-847d-4c7b-8829-21d831f7221a",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.335Z",
+    "updated_at": "2026-03-28T16:09:03.335Z",
+    "is_active": true,
+    "parent": "a581f0bf-2f49-49f4-a03c-ed8dae52adac",
+    "code": "CORPORATE",
+    "label": "Corporate",
+    "description": "",
+    "sort_order": 1,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "2d53e374-39f6-4084-a20f-32bb40b2f0c9",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.467Z",
+    "updated_at": "2026-03-28T16:09:03.467Z",
+    "is_active": true,
+    "parent": "38450f9d-38df-4c78-ba72-5be7ee493e76",
+    "code": "FRAGILE",
+    "label": "Fragile",
+    "description": "",
+    "sort_order": 1,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "2df3ade1-5e69-4755-b508-0608314b6f18",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.401Z",
+    "updated_at": "2026-03-28T16:09:03.401Z",
+    "is_active": true,
+    "parent": null,
+    "code": "RISK_PROFILE",
+    "label": "Risk Profile",
+    "description": "",
+    "sort_order": 0,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "2f73b196-57c4-42a8-980e-5d4a0f40a0d8",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.518Z",
+    "updated_at": "2026-03-28T16:09:03.518Z",
+    "is_active": true,
+    "parent": "73487be0-5e45-4ce1-a66d-78418a55d566",
+    "code": "ANALYSIS_REVIEW",
+    "label": "Analysis Review",
+    "description": "",
+    "sort_order": 1,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "2fd21f46-02e3-485d-9d38-037c3de31eed",
+  "fields": {
+    "created_at": "2026-03-28T15:22:32.749Z",
+    "updated_at": "2026-03-28T15:22:32.749Z",
+    "is_active": true,
+    "parent": "5f624618-61f8-4683-9a2c-70e7449aa452",
+    "code": "SMB",
+    "label": "SMB",
+    "description": "",
+    "sort_order": 1,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "34e8740c-1a6d-47ca-b795-856cf93e0296",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.535Z",
+    "updated_at": "2026-03-28T16:09:03.535Z",
+    "is_active": true,
+    "parent": "1ab0712b-2a16-49d3-a797-aa7cab049897",
+    "code": "COMPLETED",
+    "label": "Completed",
+    "description": "",
+    "sort_order": 1,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "35fc3eb3-a0c7-4579-b544-10a3a430ed31",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.391Z",
+    "updated_at": "2026-03-28T16:09:03.391Z",
+    "is_active": true,
+    "parent": "66d599c3-ad44-4375-a877-1985aeab3753",
+    "code": "COALITION_BLOC",
+    "label": "Coalition / Bloc",
+    "description": "",
+    "sort_order": 3,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "378b8feb-af8a-4d0d-afa4-7c15a67ce3ac",
+  "fields": {
+    "created_at": "2026-03-28T15:22:32.777Z",
+    "updated_at": "2026-03-28T15:22:32.777Z",
+    "is_active": true,
+    "parent": "58091632-d8d5-43d7-9b53-10edf0a1ac2e",
+    "code": "INTERN",
+    "label": "Intern",
+    "description": "",
+    "sort_order": 3,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "38450f9d-38df-4c78-ba72-5be7ee493e76",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.460Z",
+    "updated_at": "2026-03-28T16:09:03.460Z",
+    "is_active": true,
+    "parent": null,
+    "code": "OUTCOME_STABILITY",
+    "label": "Outcome Stability",
+    "description": "",
+    "sort_order": 0,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "397b9b33-784f-4143-bdc8-bd5a915990d0",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.354Z",
+    "updated_at": "2026-03-28T16:09:03.354Z",
+    "is_active": true,
+    "parent": "a581f0bf-2f49-49f4-a03c-ed8dae52adac",
+    "code": "CUSTOM",
+    "label": "Custom",
+    "description": "",
+    "sort_order": 7,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "3fd24415-f5a8-4499-b2c5-7b7fe1176281",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.548Z",
+    "updated_at": "2026-03-28T16:09:03.548Z",
+    "is_active": true,
+    "parent": "775a72f7-04e7-488b-a800-ced9b4a0d54a",
+    "code": "MONTE_CARLO",
+    "label": "Monte Carlo",
+    "description": "",
+    "sort_order": 1,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "413e158b-f30a-4301-9c4e-99b23f24b073",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.331Z",
+    "updated_at": "2026-03-28T16:09:03.331Z",
+    "is_active": true,
+    "parent": "a581f0bf-2f49-49f4-a03c-ed8dae52adac",
+    "code": "GEOPOLITICAL",
+    "label": "Geopolitical",
+    "description": "",
+    "sort_order": 0,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "45ad4141-076f-4ddf-bedf-4a86f6465a96",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.344Z",
+    "updated_at": "2026-03-28T16:09:03.344Z",
+    "is_active": true,
+    "parent": "a581f0bf-2f49-49f4-a03c-ed8dae52adac",
+    "code": "MARKET",
+    "label": "Market",
+    "description": "",
+    "sort_order": 4,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "45ea03b4-8f08-4d42-9511-ba50e373868d",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.341Z",
+    "updated_at": "2026-03-28T16:09:03.341Z",
+    "is_active": true,
+    "parent": "a581f0bf-2f49-49f4-a03c-ed8dae52adac",
+    "code": "LEGAL",
+    "label": "Legal",
+    "description": "",
+    "sort_order": 3,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "49c272f6-08ec-4e2b-9d91-930cc3b72379",
+  "fields": {
+    "created_at": "2026-03-28T15:22:32.783Z",
+    "updated_at": "2026-03-28T15:22:32.783Z",
+    "is_active": true,
+    "parent": "fca2f09f-23be-444a-aa2b-fbbe07e49a86",
+    "code": "FINANCIAL_SERVICES",
+    "label": "Financial Services",
+    "description": "",
+    "sort_order": 0,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "4dfe4dbf-7d32-4030-88a1-5bed727b4c4c",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.367Z",
+    "updated_at": "2026-03-28T16:09:03.367Z",
+    "is_active": true,
+    "parent": "67bf333c-0859-443a-95af-9cf27cee656a",
+    "code": "RUNNING",
+    "label": "Running",
+    "description": "",
+    "sort_order": 2,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "4f0a716c-722b-4572-96bf-9d961c0630a2",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.361Z",
+    "updated_at": "2026-03-28T16:09:03.361Z",
+    "is_active": true,
+    "parent": "67bf333c-0859-443a-95af-9cf27cee656a",
+    "code": "DRAFT",
+    "label": "Draft",
+    "description": "",
+    "sort_order": 0,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "4f7b6a6b-113b-4513-8fdc-9078c8df65dd",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.545Z",
+    "updated_at": "2026-03-28T16:09:03.545Z",
+    "is_active": true,
+    "parent": "775a72f7-04e7-488b-a800-ced9b4a0d54a",
+    "code": "OAT",
+    "label": "One-at-a-Time",
+    "description": "",
+    "sort_order": 0,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "5069d9c3-b715-48d9-a77c-cb5e1b7860c6",
+  "fields": {
+    "created_at": "2026-03-28T15:22:32.764Z",
+    "updated_at": "2026-03-28T15:22:32.764Z",
+    "is_active": true,
+    "parent": "58091632-d8d5-43d7-9b53-10edf0a1ac2e",
+    "code": "FULL_TIME",
+    "label": "Full-time",
+    "description": "",
+    "sort_order": 0,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "50f8431f-afc3-454f-b839-598fd029fef2",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.338Z",
+    "updated_at": "2026-03-28T16:09:03.338Z",
+    "is_active": true,
+    "parent": "a581f0bf-2f49-49f4-a03c-ed8dae52adac",
+    "code": "LEGISLATIVE",
+    "label": "Legislative",
+    "description": "",
+    "sort_order": 2,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "58091632-d8d5-43d7-9b53-10edf0a1ac2e",
+  "fields": {
+    "created_at": "2026-03-28T15:22:32.760Z",
+    "updated_at": "2026-03-28T15:22:32.760Z",
+    "is_active": true,
+    "parent": null,
+    "code": "EMPLOYEE_TYPE",
+    "label": "Employee Type",
+    "description": "",
+    "sort_order": 0,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "599ec57d-53fb-4186-a139-345b38c98b6d",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.388Z",
+    "updated_at": "2026-03-28T16:09:03.388Z",
+    "is_active": true,
+    "parent": "66d599c3-ad44-4375-a877-1985aeab3753",
+    "code": "GOVERNMENT",
+    "label": "Government",
+    "description": "",
+    "sort_order": 2,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "5f624618-61f8-4683-9a2c-70e7449aa452",
+  "fields": {
+    "created_at": "2026-03-28T15:22:32.741Z",
+    "updated_at": "2026-03-28T15:22:32.741Z",
+    "is_active": true,
+    "parent": null,
+    "code": "CUSTOMER_TYPE",
+    "label": "Customer Type",
+    "description": "",
+    "sort_order": 0,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "66d599c3-ad44-4375-a877-1985aeab3753",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.378Z",
+    "updated_at": "2026-03-28T16:09:03.378Z",
+    "is_active": true,
+    "parent": null,
+    "code": "PLAYER_TYPE",
+    "label": "Player Type",
+    "description": "",
+    "sort_order": 0,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "67bf333c-0859-443a-95af-9cf27cee656a",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.357Z",
+    "updated_at": "2026-03-28T16:09:03.357Z",
+    "is_active": true,
+    "parent": null,
+    "code": "SCENARIO_STATUS",
+    "label": "Scenario Status",
+    "description": "",
+    "sort_order": 0,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "6a29564b-5647-4368-ab42-677b808327ac",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.426Z",
+    "updated_at": "2026-03-28T16:09:03.426Z",
+    "is_active": true,
+    "parent": "e0ae9a6b-f087-4536-b969-5e94b4489fc8",
+    "code": "VIEWER",
+    "label": "Viewer",
+    "description": "",
+    "sort_order": 2,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "6b5fbe43-cd2b-4ffa-93d4-28dbf7fdd15a",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.525Z",
+    "updated_at": "2026-03-28T16:09:03.525Z",
+    "is_active": true,
+    "parent": "73487be0-5e45-4ce1-a66d-78418a55d566",
+    "code": "GENERAL",
+    "label": "General",
+    "description": "",
+    "sort_order": 3,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "6eb31cf8-4646-492e-8478-52a01dab4143",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.490Z",
+    "updated_at": "2026-03-28T16:09:03.490Z",
+    "is_active": true,
+    "parent": "d3cae974-3a95-4af1-aa9e-245538bd65c6",
+    "code": "POSITION_SHIFT",
+    "label": "Position Shift",
+    "description": "",
+    "sort_order": 0,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "7163edc7-6f6c-40b0-9025-9999793a0578",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.385Z",
+    "updated_at": "2026-03-28T16:09:03.385Z",
+    "is_active": true,
+    "parent": "66d599c3-ad44-4375-a877-1985aeab3753",
+    "code": "ORGANIZATION",
+    "label": "Organization",
+    "description": "",
+    "sort_order": 1,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "73487be0-5e45-4ce1-a66d-78418a55d566",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.512Z",
+    "updated_at": "2026-03-28T16:09:03.512Z",
+    "is_active": true,
+    "parent": null,
+    "code": "CONVERSATION_SESSION_TYPE",
+    "label": "Conversation Session Type",
+    "description": "",
+    "sort_order": 0,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "775a72f7-04e7-488b-a800-ced9b4a0d54a",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.541Z",
+    "updated_at": "2026-03-28T16:09:03.541Z",
+    "is_active": true,
+    "parent": null,
+    "code": "SENSITIVITY_TYPE",
+    "label": "Sensitivity Type",
+    "description": "",
+    "sort_order": 0,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "8451c2b4-37f0-4d5e-9fb6-c1febc8ac898",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.501Z",
+    "updated_at": "2026-03-28T16:09:03.501Z",
+    "is_active": true,
+    "parent": "d3cae974-3a95-4af1-aa9e-245538bd65c6",
+    "code": "SALIENCE_INCREASE",
+    "label": "Salience Increase",
+    "description": "",
+    "sort_order": 3,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "88dd95f8-e8fe-4cb6-899d-32443051a5d2",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.450Z",
+    "updated_at": "2026-03-28T16:09:03.450Z",
+    "is_active": true,
+    "parent": "db04eab3-56ab-457f-9e41-725b98a6d9b2",
+    "code": "RUNNING",
+    "label": "Running",
+    "description": "",
+    "sort_order": 1,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "9150537c-25ea-4851-920c-baafab97efb1",
+  "fields": {
+    "created_at": "2026-03-28T15:22:32.787Z",
+    "updated_at": "2026-03-28T15:22:32.787Z",
+    "is_active": true,
+    "parent": "fca2f09f-23be-444a-aa2b-fbbe07e49a86",
+    "code": "HEALTHCARE",
+    "label": "Healthcare",
+    "description": "",
+    "sort_order": 1,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "967a5eac-299a-4001-b2c5-11900c7523f2",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.509Z",
+    "updated_at": "2026-03-28T16:09:03.509Z",
+    "is_active": true,
+    "parent": "d3cae974-3a95-4af1-aa9e-245538bd65c6",
+    "code": "ALLIANCE_FORMATION",
+    "label": "Alliance Formation",
+    "description": "",
+    "sort_order": 5,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "969218b7-fbf4-44fc-b9f4-77e8637944f7",
+  "fields": {
+    "created_at": "2026-03-28T15:22:32.811Z",
+    "updated_at": "2026-03-28T15:22:32.811Z",
+    "is_active": true,
+    "parent": "d6e4636f-ccde-4666-b28e-19002a889e20",
+    "code": "SUSPENDED",
+    "label": "Suspended",
+    "description": "",
+    "sort_order": 3,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "a581f0bf-2f49-49f4-a03c-ed8dae52adac",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.328Z",
+    "updated_at": "2026-03-28T16:09:03.328Z",
+    "is_active": true,
+    "parent": null,
+    "code": "SCENARIO_TYPE",
+    "label": "Scenario Type",
+    "description": "",
+    "sort_order": 0,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "a7bd7786-1dd4-4913-8b8d-4ac67eaf9ada",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.521Z",
+    "updated_at": "2026-03-28T16:09:03.521Z",
+    "is_active": true,
+    "parent": "73487be0-5e45-4ce1-a66d-78418a55d566",
+    "code": "STRATEGY_ADVISOR",
+    "label": "Strategy Advisor",
+    "description": "",
+    "sort_order": 2,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "a8881ef6-3a12-407e-876a-9014ffb264a9",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.375Z",
+    "updated_at": "2026-03-28T16:09:03.375Z",
+    "is_active": true,
+    "parent": "67bf333c-0859-443a-95af-9cf27cee656a",
+    "code": "ARCHIVED",
+    "label": "Archived",
+    "description": "",
+    "sort_order": 4,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "a9fea133-8b70-4382-87be-fe92a06c4f23",
+  "fields": {
+    "created_at": "2026-03-28T15:22:32.769Z",
+    "updated_at": "2026-03-28T15:22:32.769Z",
+    "is_active": true,
+    "parent": "58091632-d8d5-43d7-9b53-10edf0a1ac2e",
+    "code": "PART_TIME",
+    "label": "Part-time",
+    "description": "",
+    "sort_order": 1,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "aacd29ea-7ede-4101-9c40-0eb6ea5cedc4",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.381Z",
+    "updated_at": "2026-03-28T16:09:03.381Z",
+    "is_active": true,
+    "parent": "66d599c3-ad44-4375-a877-1985aeab3753",
+    "code": "INDIVIDUAL",
+    "label": "Individual",
+    "description": "",
+    "sort_order": 0,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "ad858cb1-47ae-4b78-ab26-a052270597ba",
+  "fields": {
+    "created_at": "2026-03-28T15:22:32.757Z",
+    "updated_at": "2026-03-28T15:22:32.757Z",
+    "is_active": true,
+    "parent": "5f624618-61f8-4683-9a2c-70e7449aa452",
+    "code": "INDIVIDUAL",
+    "label": "Individual",
+    "description": "",
+    "sort_order": 3,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "af9e8b59-ac9d-400c-bff1-8860a62fa9d1",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.399Z",
+    "updated_at": "2026-03-28T16:09:03.399Z",
+    "is_active": true,
+    "parent": "66d599c3-ad44-4375-a877-1985aeab3753",
+    "code": "OTHER",
+    "label": "Other",
+    "description": "",
+    "sort_order": 5,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "b6e18de3-f9f4-416c-9477-03e4b6a4dd79",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.532Z",
+    "updated_at": "2026-03-28T16:09:03.532Z",
+    "is_active": true,
+    "parent": "1ab0712b-2a16-49d3-a797-aa7cab049897",
+    "code": "ACTIVE",
+    "label": "Active",
+    "description": "",
+    "sort_order": 0,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "b742ec0e-e171-44be-ad92-92b2935856db",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.429Z",
+    "updated_at": "2026-03-28T16:09:03.429Z",
+    "is_active": true,
+    "parent": null,
+    "code": "SUBSCRIPTION_TIER",
+    "label": "Subscription Tier",
+    "description": "",
+    "sort_order": 0,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "b883c1da-b664-4814-af65-a0467facf79a",
+  "fields": {
+    "created_at": "2026-03-28T15:22:32.804Z",
+    "updated_at": "2026-03-28T15:22:32.804Z",
+    "is_active": true,
+    "parent": "d6e4636f-ccde-4666-b28e-19002a889e20",
+    "code": "INACTIVE",
+    "label": "Inactive",
+    "description": "",
+    "sort_order": 1,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "bbbc29cc-5643-4668-85f8-bc6f4a4af827",
+  "fields": {
+    "created_at": "2026-03-28T15:22:32.773Z",
+    "updated_at": "2026-03-28T15:22:32.773Z",
+    "is_active": true,
+    "parent": "58091632-d8d5-43d7-9b53-10edf0a1ac2e",
+    "code": "CONTRACTOR",
+    "label": "Contractor",
+    "description": "",
+    "sort_order": 2,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "bc8866f8-5fcb-4259-a855-24ac4de4edef",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.463Z",
+    "updated_at": "2026-03-28T16:09:03.463Z",
+    "is_active": true,
+    "parent": "38450f9d-38df-4c78-ba72-5be7ee493e76",
+    "code": "STABLE",
+    "label": "Stable",
+    "description": "",
+    "sort_order": 0,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "bd3ffe55-7420-4738-b831-3b0d2c7ef0f7",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.371Z",
+    "updated_at": "2026-03-28T16:09:03.371Z",
+    "is_active": true,
+    "parent": "67bf333c-0859-443a-95af-9cf27cee656a",
+    "code": "COMPLETED",
+    "label": "Completed",
+    "description": "",
+    "sort_order": 3,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "bd959ee3-a783-4ebe-8510-46c157804596",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.395Z",
+    "updated_at": "2026-03-28T16:09:03.395Z",
+    "is_active": true,
+    "parent": "66d599c3-ad44-4375-a877-1985aeab3753",
+    "code": "INSTITUTION",
+    "label": "Institution",
+    "description": "",
+    "sort_order": 4,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "bdf47849-f74d-4c09-8645-53d0f788648b",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.538Z",
+    "updated_at": "2026-03-28T16:09:03.538Z",
+    "is_active": true,
+    "parent": "1ab0712b-2a16-49d3-a797-aa7cab049897",
+    "code": "ABANDONED",
+    "label": "Abandoned",
+    "description": "",
+    "sort_order": 2,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "bf8fc9e0-ffc7-47a8-9a5e-3b7fc6509341",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.474Z",
+    "updated_at": "2026-03-28T16:09:03.474Z",
+    "is_active": true,
+    "parent": null,
+    "code": "COALITION_TYPE",
+    "label": "Coalition Type",
+    "description": "",
+    "sort_order": 0,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "c17fe543-5170-46a6-aa6a-d9a5b8accd2a",
+  "fields": {
+    "created_at": "2026-03-28T15:22:32.800Z",
+    "updated_at": "2026-03-28T15:22:32.800Z",
+    "is_active": true,
+    "parent": "d6e4636f-ccde-4666-b28e-19002a889e20",
+    "code": "ACTIVE",
+    "label": "Active",
+    "description": "",
+    "sort_order": 0,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "c8bab5b4-7530-4aad-864f-ef88846c8dac",
+  "fields": {
+    "created_at": "2026-03-28T15:22:32.753Z",
+    "updated_at": "2026-03-28T15:22:32.753Z",
+    "is_active": true,
+    "parent": "5f624618-61f8-4683-9a2c-70e7449aa452",
+    "code": "STARTUP",
+    "label": "Startup",
+    "description": "",
+    "sort_order": 2,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "ca2f3e04-6a08-460a-b458-fbdb2af674a2",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.494Z",
+    "updated_at": "2026-03-28T16:09:03.494Z",
+    "is_active": true,
+    "parent": "d3cae974-3a95-4af1-aa9e-245538bd65c6",
+    "code": "COALITION_BUILD",
+    "label": "Coalition Build",
+    "description": "",
+    "sort_order": 1,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "cb0f98db-b220-4dfb-be20-400e0309f815",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.484Z",
+    "updated_at": "2026-03-28T16:09:03.484Z",
+    "is_active": true,
+    "parent": "bf8fc9e0-ffc7-47a8-9a5e-3b7fc6509341",
+    "code": "HYPOTHETICAL",
+    "label": "Hypothetical",
+    "description": "",
+    "sort_order": 2,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "d1c76f4f-07ba-4d73-a1aa-dd0c9c528f68",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.364Z",
+    "updated_at": "2026-03-28T16:09:03.364Z",
+    "is_active": true,
+    "parent": "67bf333c-0859-443a-95af-9cf27cee656a",
+    "code": "READY",
+    "label": "Ready",
+    "description": "",
+    "sort_order": 1,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "d3cae974-3a95-4af1-aa9e-245538bd65c6",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.487Z",
+    "updated_at": "2026-03-28T16:09:03.487Z",
+    "is_active": true,
+    "parent": null,
+    "code": "RECOMMENDATION_TYPE",
+    "label": "Recommendation Type",
+    "description": "",
+    "sort_order": 0,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "d6e4636f-ccde-4666-b28e-19002a889e20",
+  "fields": {
+    "created_at": "2026-03-28T15:22:32.797Z",
+    "updated_at": "2026-03-28T15:22:32.797Z",
+    "is_active": true,
+    "parent": null,
+    "code": "STATUS",
+    "label": "Status",
+    "description": "",
+    "sort_order": 0,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "db04eab3-56ab-457f-9e41-725b98a6d9b2",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.443Z",
+    "updated_at": "2026-03-28T16:09:03.443Z",
+    "is_active": true,
+    "parent": null,
+    "code": "SIMULATION_STATUS",
+    "label": "Simulation Status",
+    "description": "",
+    "sort_order": 0,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "dfd7adee-9dab-45f5-8882-ddb6075d2c22",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.477Z",
+    "updated_at": "2026-03-28T16:09:03.477Z",
+    "is_active": true,
+    "parent": "bf8fc9e0-ffc7-47a8-9a5e-3b7fc6509341",
+    "code": "DETECTED",
+    "label": "Detected",
+    "description": "",
+    "sort_order": 0,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "e0ae9a6b-f087-4536-b969-5e94b4489fc8",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.415Z",
+    "updated_at": "2026-03-28T16:09:03.415Z",
+    "is_active": true,
+    "parent": null,
+    "code": "USER_ROLE",
+    "label": "User Role",
+    "description": "",
+    "sort_order": 0,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "e7a83907-32a6-4329-898a-2f060c9997b7",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.404Z",
+    "updated_at": "2026-03-28T16:09:03.404Z",
+    "is_active": true,
+    "parent": "2df3ade1-5e69-4755-b508-0608314b6f18",
+    "code": "RISK_AVERSE",
+    "label": "Risk Averse",
+    "description": "",
+    "sort_order": 0,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "eab272e3-ca28-43fb-bb18-a32e04e444bc",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.453Z",
+    "updated_at": "2026-03-28T16:09:03.453Z",
+    "is_active": true,
+    "parent": "db04eab3-56ab-457f-9e41-725b98a6d9b2",
+    "code": "COMPLETED",
+    "label": "Completed",
+    "description": "",
+    "sort_order": 2,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "ebe03fbe-9c4c-4ed6-ab05-760aa7dac63e",
+  "fields": {
+    "created_at": "2026-03-28T15:22:32.791Z",
+    "updated_at": "2026-03-28T15:22:32.791Z",
+    "is_active": true,
+    "parent": "fca2f09f-23be-444a-aa2b-fbbe07e49a86",
+    "code": "TECHNOLOGY",
+    "label": "Technology",
+    "description": "",
+    "sort_order": 2,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "efbd7a16-d793-4ebd-987b-be280a74cd5e",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.408Z",
+    "updated_at": "2026-03-28T16:09:03.408Z",
+    "is_active": true,
+    "parent": "2df3ade1-5e69-4755-b508-0608314b6f18",
+    "code": "RISK_NEUTRAL",
+    "label": "Risk Neutral",
+    "description": "",
+    "sort_order": 1,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "f657ef7c-d25a-4bfc-b9a2-c027f205fc6d",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.470Z",
+    "updated_at": "2026-03-28T16:09:03.470Z",
+    "is_active": true,
+    "parent": "38450f9d-38df-4c78-ba72-5be7ee493e76",
+    "code": "DEADLOCKED",
+    "label": "Deadlocked",
+    "description": "",
+    "sort_order": 2,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "fca2f09f-23be-444a-aa2b-fbbe07e49a86",
+  "fields": {
+    "created_at": "2026-03-28T15:22:32.780Z",
+    "updated_at": "2026-03-28T15:22:32.780Z",
+    "is_active": true,
+    "parent": null,
+    "code": "BUSINESS_CATEGORY",
+    "label": "Business Category",
+    "description": "",
+    "sort_order": 0,
+    "metadata": {}
+  }
+},
+{
+  "model": "lookup.lookupvalue",
+  "pk": "fe35d6e0-abbf-4617-b8d4-0745a9f17537",
+  "fields": {
+    "created_at": "2026-03-28T16:09:03.505Z",
+    "updated_at": "2026-03-28T16:09:03.505Z",
+    "is_active": true,
+    "parent": "d3cae974-3a95-4af1-aa9e-245538bd65c6",
+    "code": "CAPABILITY_REDUCTION",
+    "label": "Capability Reduction",
+    "description": "",
+    "sort_order": 4,
+    "metadata": {}
+  }
+}
+]
