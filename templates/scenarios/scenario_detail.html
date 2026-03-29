@@ -312,11 +312,48 @@
             {% endif %}
         </div>
         <div style="flex: 0 0 auto; min-width: 380px;">
-            <div class="card" style="margin: 0; border-left: 4px solid #ffa726; border-radius: 0 8px 8px 0;">
+            <div class="card" style="margin: 0; border-left: 4px solid #ffa726; border-radius: 0 8px 8px 0; position: relative;">
                 <div class="card-content" style="padding: 12px 16px;">
                     <span class="card-title" style="font-size: 1rem;">
                         <i class="material-icons">assessment</i> Data Quality
                     </span>
+                    <!-- Info badge top-right -->
+                    <span class="info-badge info-trigger" data-tooltip="dq-tip"
+                          style="position: absolute; top: 10px; right: 10px; width: 26px; height: 26px; background: #ffa726; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; border-radius: 50;"
+                          title="What do these scores mean?">
+                        <i class="material-icons" style="font-size: 16px; color: #fff;">help_outline</i>
+                    </span>
+                    <div class="info-popup" id="dq-tip" style="right: 0; left: auto; transform: none; width: 500px;">
+                        <div style="font-weight: 600; font-size: 0.95rem; color: #ffa726; margin-bottom: 8px;">
+                            <i class="material-icons" style="font-size: 16px; vertical-align: middle;">assessment</i> Data Quality Score
+                        </div>
+                        <p style="font-size: 0.82rem; color: #546e7a; margin: 0 0 8px 0;">
+                            The overall score (0–100) measures how well your scenario is set up for accurate predictions. Higher = more reliable results.
+                        </p>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.8rem; color: #546e7a; line-height: 1.5;">
+                            <div style="padding: 6px 8px; background: #e3f2fd; border-radius: 6px;">
+                                <strong style="color: #1e88e5;">Completeness (30%)</strong><br>
+                                Are all player positions defined for every issue? Penalized if fewer than 5 players.
+                            </div>
+                            <div style="padding: 6px 8px; background: #e8f5e9; border-radius: 6px;">
+                                <strong style="color: #43a047;">Diversity (25%)</strong><br>
+                                Do players have different positions and capabilities? Flags if one player has &gt;80% power.
+                            </div>
+                            <div style="padding: 6px 8px; background: #f3e5f5; border-radius: 6px;">
+                                <strong style="color: #8e24aa;">Consistency (25%)</strong><br>
+                                Any contradictory combos? E.g. high power + zero salience means they won't engage.
+                            </div>
+                            <div style="padding: 6px 8px; background: #ffebee; border-radius: 6px;">
+                                <strong style="color: #c62828;">Granularity (20%)</strong><br>
+                                Are values precise (37, 62) or all round numbers (25, 50, 75)? Granular = better.
+                            </div>
+                        </div>
+                        <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid #eee; font-size: 0.78rem; color: #9e9e9e;">
+                            <strong>70+</strong> = Good — predictions should be reliable<br>
+                            <strong>40–69</strong> = OK — consider improving weak areas<br>
+                            <strong>&lt;40</strong> = Needs work — predictions may be unreliable
+                        </div>
+                    </div>
                     <div style="display: flex; align-items: center; gap: 16px;">
                         <div style="text-align: center; white-space: nowrap;">
                             <span class="quality-score {% if quality.score >= 70 %}quality-good{% elif quality.score >= 40 %}quality-ok{% else %}quality-poor{% endif %}">
