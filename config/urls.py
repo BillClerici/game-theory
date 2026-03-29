@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from apps.api.views import health_check, auth_callback
 from rest_framework_simplejwt.views import TokenRefreshView
-from apps.core.views import LandingPageView, ApplicationConfigView
+from apps.core.views import LandingPageView, ApplicationConfigView, MethodologyView
 from apps.users.views import LoginView, RegisterView, LogoutView
 from apps.rbac.views import (
     UserListView, UserCreateView, UserEditView, UserDeleteView,
@@ -19,6 +19,7 @@ urlpatterns = [
     path('auth/jwt-callback/', auth_callback, name='auth_jwt_callback'),
     path('', LandingPageView.as_view(), name='landing'),
     path('application-config/', ApplicationConfigView.as_view(), name='application_config'),
+    path('methodology/', MethodologyView.as_view(), name='methodology'),
     path('login/', LoginView.as_view(), name='login'),
     path('register/', RegisterView.as_view(), name='register'),
     path('logout/', LogoutView.as_view(), name='logout'),

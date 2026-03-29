@@ -4,125 +4,194 @@
 
 {% block extra_css %}
 <style>
-    .stat-card { text-align: center; padding: 16px; }
-    .stat-number { font-size: 2.2rem; font-weight: bold; color: #455a64; }
-    .stat-label { font-size: 0.85rem; color: #78909c; }
-    .status-chip { font-size: 0.8rem; padding: 2px 10px; border-radius: 12px; color: #fff; display: inline-block; }
-    .status-DRAFT { background: #78909c; }
-    .status-READY { background: #42a5f5; }
-    .status-RUNNING { background: #ffa726; }
-    .status-COMPLETED { background: #66bb6a; }
-    .status-ARCHIVED { background: #bdbdbd; }
-    .quick-card { transition: box-shadow 0.2s; }
-    .quick-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    .dash-container { max-width: 950px; margin: 10px auto; padding: 0 16px; }
+    .stat-grid {
+        display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 16px 0;
+    }
+    .stat-box {
+        border-radius: 10px; padding: 18px 14px; text-align: center;
+        color: #fff; transition: transform 0.15s, box-shadow 0.2s;
+    }
+    .stat-box:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(0,0,0,0.2); }
+    .stat-box .sb-value { font-size: 2rem; font-weight: 700; line-height: 1; }
+    .stat-box .sb-label { font-size: 0.8rem; opacity: 0.85; margin-top: 4px; }
+    .stat-box .sb-icon { font-size: 2.2rem; margin-bottom: 4px; opacity: 0.9; }
+    .sb-blue { background: linear-gradient(135deg, #42a5f5, #1e88e5); }
+    .sb-green { background: linear-gradient(135deg, #66bb6a, #43a047); }
+    .sb-orange { background: linear-gradient(135deg, #ffa726, #f57c00); }
+    .sb-purple { background: linear-gradient(135deg, #ab47bc, #8e24aa); }
+    .quick-actions {
+        display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 16px 0;
+    }
+    .qa-card {
+        border-radius: 10px; padding: 20px 16px; text-align: center;
+        border: 2px solid #e8e8e8; background: #fff;
+        transition: transform 0.15s, box-shadow 0.2s, border-color 0.2s;
+        text-decoration: none; display: block;
+    }
+    .qa-card:hover { transform: translateY(-3px); box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+    .qa-card .qa-icon {
+        width: 50px; height: 50px; border-radius: 50%; margin: 0 auto 10px auto;
+        display: flex; align-items: center; justify-content: center; color: #fff;
+    }
+    .qa-card .qa-title { font-weight: 700; font-size: 0.95rem; color: #37474f; }
+    .qa-card .qa-desc { font-size: 0.8rem; color: #78909c; margin-top: 4px; line-height: 1.4; }
+    .qa-card:hover .qa-icon { transform: scale(1.1); }
+    .qa-card .qa-icon { transition: transform 0.15s; }
+    .qa-blue:hover { border-color: #42a5f5; }
+    .qa-green:hover { border-color: #66bb6a; }
+    .qa-purple:hover { border-color: #ab47bc; }
+    .recent-card {
+        transition: box-shadow 0.2s, transform 0.15s;
+        border-radius: 10px; overflow: hidden;
+        border-left: 4px solid #42a5f5;
+        background: #fff;
+    }
+    .recent-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.12); transform: translateY(-2px); }
+    .recent-card .card-content { padding: 12px 16px; }
+    .scenario-type-badge {
+        font-size: 0.72rem; font-weight: 600; padding: 2px 8px; border-radius: 4px;
+        background: #eceff1; color: #546e7a; display: inline-block;
+    }
+    @media only screen and (max-width: 768px) {
+        .stat-grid { grid-template-columns: repeat(2, 1fr); }
+        .quick-actions { grid-template-columns: 1fr; }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="section">
-    <div class="container">
-        <h4 class="blue-grey-text text-darken-3" style="margin-top: 1.5rem;">
-            <i class="material-icons" style="vertical-align: middle;">dashboard</i>
-            Game Theory Dashboard
-        </h4>
-        <p class="grey-text text-darken-1">Welcome{% if user.first_name %}, {{ user.first_name }}{% endif %}.</p>
-
-        {% if user.is_authenticated %}
-        <!-- Stats Row -->
-        <div class="row" style="margin-top: 1.5rem;">
-            <div class="col s6 m3">
-                <div class="card-panel stat-card hoverable">
-                    <div class="stat-number">{{ total_scenarios|default:"0" }}</div>
-                    <div class="stat-label">Scenarios</div>
-                </div>
-            </div>
-            <div class="col s6 m3">
-                <div class="card-panel stat-card hoverable">
-                    <div class="stat-number">{{ completed_sims|default:"0" }}</div>
-                    <div class="stat-label">Simulations Run</div>
-                </div>
-            </div>
-            <div class="col s6 m3">
-                <div class="card-panel stat-card hoverable">
-                    <a href="{% url 'chat_new' %}" style="display: block;">
-                        <i class="material-icons medium blue-grey-text">add_circle_outline</i>
-                        <div class="stat-label" style="margin-top: 4px;">New Scenario</div>
-                    </a>
-                </div>
-            </div>
-            <div class="col s6 m3">
-                <div class="card-panel stat-card hoverable">
-                    <a href="{% url 'scenario_list' %}" style="display: block;">
-                        <i class="material-icons medium blue-grey-text">list_alt</i>
-                        <div class="stat-label" style="margin-top: 4px;">All Scenarios</div>
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Recent Scenarios -->
-        {% if recent_scenarios %}
-        <h5 class="blue-grey-text text-darken-2" style="font-size: 1.2rem; margin-top: 1.5rem;">Recent Scenarios</h5>
-        <div class="row">
-            {% for scenario in recent_scenarios %}
-            <div class="col s12 m6 l4">
-                <div class="card quick-card">
-                    <div class="card-content" style="padding: 16px;">
-                        <a href="{% url 'scenario_detail' scenario.pk %}" class="card-title blue-grey-text text-darken-3" style="font-size: 1rem;">
-                            {{ scenario.title }}
-                        </a>
-                        <p>
-                            <span class="status-chip status-{{ scenario.status.code }}">{{ scenario.status.label }}</span>
-                            <span class="grey-text" style="font-size: 0.8rem; margin-left: 6px;">{{ scenario.scenario_type.label }}</span>
-                        </p>
-                        <p class="grey-text text-lighten-1" style="font-size: 0.8rem; margin-top: 6px;">
-                            Updated {{ scenario.updated_at|timesince }} ago
-                        </p>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        {% else %}
-        <!-- Getting Started -->
-        <div class="row" style="margin-top: 2rem;">
-            <div class="col s12 m8 offset-m2">
-                <div class="card-panel center-align">
-                    <i class="material-icons large blue-grey-text text-lighten-1">psychology</i>
-                    <h5 class="blue-grey-text">Get Started with Game Theory</h5>
-                    <p class="grey-text">
-                        Create your first prediction scenario to start modeling strategic outcomes
-                        using the BDM expected utility framework.
-                    </p>
-                    <a href="{% url 'chat_new' %}" class="btn-large blue-grey darken-2 waves-effect waves-light" style="margin-top: 12px;">
-                        <i class="material-icons left">add</i>Create Your First Scenario
-                    </a>
-                </div>
-            </div>
-        </div>
-        {% endif %}
-
-        {% else %}
-        <!-- Not authenticated -->
-        <div class="row" style="margin-top: 2rem;">
-            <div class="col s12 m8 offset-m2 center-align">
-                <i class="material-icons large blue-grey-text text-lighten-1">psychology</i>
-                <h5 class="blue-grey-text">AI-Powered Prediction Engine</h5>
-                <p class="grey-text flow-text">
-                    Predict outcomes of strategic scenarios using Bruce Bueno de Mesquita's
-                    expected utility model. Engineer preferred results with data-driven strategy.
-                </p>
-                <div style="margin-top: 1.5rem;">
-                    <a href="{% url 'register' %}" class="btn-large blue-grey darken-2 waves-effect waves-light" style="margin-right: 1rem;">
-                        <i class="material-icons left">person_add</i>Get Started
-                    </a>
-                    <a href="{% url 'login' %}" class="btn-large blue-grey lighten-1 waves-effect waves-light">
-                        <i class="material-icons left">login</i>Sign In
-                    </a>
-                </div>
-            </div>
-        </div>
-        {% endif %}
+<div class="dash-container">
+    <!-- Hero -->
+    <div class="page-hero">
+        <h4><i class="material-icons">dashboard</i> Game Theory Dashboard</h4>
+        <p>Welcome{% if user.first_name %}, {{ user.first_name }}{% endif %}. Predict outcomes and engineer strategies using the BDM model.</p>
     </div>
+
+    {% if user.is_authenticated %}
+    <!-- Color Stats -->
+    <div class="stat-grid">
+        <div class="stat-box sb-blue">
+            <div class="sb-icon"><i class="material-icons">psychology</i></div>
+            <div class="sb-value">{{ total_scenarios|default:"0" }}</div>
+            <div class="sb-label">Scenarios</div>
+        </div>
+        <div class="stat-box sb-green">
+            <div class="sb-icon"><i class="material-icons">play_circle</i></div>
+            <div class="sb-value">{{ completed_sims|default:"0" }}</div>
+            <div class="sb-label">Simulations</div>
+        </div>
+        <div class="stat-box sb-orange">
+            <div class="sb-icon"><i class="material-icons">insights</i></div>
+            <div class="sb-value">—</div>
+            <div class="sb-label">Predictions</div>
+        </div>
+        <div class="stat-box sb-purple">
+            <div class="sb-icon"><i class="material-icons">compare_arrows</i></div>
+            <div class="sb-value">—</div>
+            <div class="sb-label">Comparisons</div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="section-title">
+        <span class="section-icon"><i class="material-icons" style="font-size: 16px;">flash_on</i></span>
+        Quick Actions
+    </div>
+    <div class="quick-actions">
+        <a href="{% url 'chat_new' %}" class="qa-card qa-blue">
+            <div class="qa-icon" style="background: linear-gradient(135deg, #42a5f5, #1e88e5);">
+                <i class="material-icons">smart_toy</i>
+            </div>
+            <div class="qa-title">AI Scenario Builder</div>
+            <div class="qa-desc">Create a new scenario with AI-guided conversation and web research</div>
+        </a>
+        <a href="{% url 'scenario_list' %}" class="qa-card qa-green">
+            <div class="qa-icon" style="background: linear-gradient(135deg, #66bb6a, #43a047);">
+                <i class="material-icons">list_alt</i>
+            </div>
+            <div class="qa-title">My Scenarios</div>
+            <div class="qa-desc">View, edit, and manage all your prediction scenarios</div>
+        </a>
+        <a href="{% url 'methodology' %}" class="qa-card qa-purple">
+            <div class="qa-icon" style="background: linear-gradient(135deg, #ab47bc, #8e24aa);">
+                <i class="material-icons">school</i>
+            </div>
+            <div class="qa-title">BDM Methodology</div>
+            <div class="qa-desc">Learn how the prediction engine works with interactive examples</div>
+        </a>
+    </div>
+
+    <!-- Recent Scenarios -->
+    {% if recent_scenarios %}
+    <div class="section-title" style="margin-top: 20px;">
+        <span class="section-icon"><i class="material-icons" style="font-size: 16px;">history</i></span>
+        Recent Scenarios
+    </div>
+    <div class="card-grid cols-2">
+        {% for scenario in recent_scenarios %}
+        <div class="card recent-card" style="margin: 0;">
+            <div class="card-content">
+                <a href="{% url 'scenario_detail' scenario.pk %}" style="text-decoration: none;">
+                    <span style="font-size: 1rem; font-weight: 600; color: #37474f;">{{ scenario.title }}</span>
+                </a>
+                <div style="margin-top: 4px;">
+                    <span class="gt-chip gt-chip-{{ scenario.status.code|lower }}">{{ scenario.status.label }}</span>
+                    <span class="scenario-type-badge" style="margin-left: 6px;">{{ scenario.scenario_type.label }}</span>
+                </div>
+                <p style="font-size: 0.78rem; color: #b0bec5; margin-top: 6px;">
+                    Updated {{ scenario.updated_at|timesince }} ago
+                </p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <!-- Getting Started -->
+    <div class="section-title" style="margin-top: 20px;">
+        <span class="section-icon"><i class="material-icons" style="font-size: 16px;">rocket_launch</i></span>
+        Get Started
+    </div>
+    <div class="accent-card ac-blue" style="text-align: center; padding: 30px;">
+        <i class="material-icons" style="font-size: 3rem; color: #42a5f5;">psychology</i>
+        <h5 style="color: #37474f; margin: 10px 0;">Create Your First Scenario</h5>
+        <p style="color: #607d8b; max-width: 500px; margin: 0 auto 16px auto;">
+            Start modeling strategic outcomes using the BDM expected utility framework.
+            Our AI assistant will guide you through the process.
+        </p>
+        <a href="{% url 'chat_new' %}" class="btn blue-grey darken-2 waves-effect waves-light" style="border-radius: 8px;">
+            <i class="material-icons left">add</i>Create Scenario with AI
+        </a>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <!-- Not authenticated -->
+    <div style="text-align: center; padding: 20px 0;">
+        <div class="quick-actions" style="margin-bottom: 24px;">
+            <div class="accent-card ac-blue" style="text-align: center; padding: 20px;">
+                <i class="material-icons" style="font-size: 2.5rem; color: #42a5f5;">gps_fixed</i>
+                <h6 style="color: #37474f; margin: 8px 0 4px 0;">Predict Outcomes</h6>
+                <p style="color: #607d8b; font-size: 0.85rem;">Model strategic scenarios and predict where negotiations, decisions, and conflicts will land.</p>
+            </div>
+            <div class="accent-card ac-green" style="text-align: center; padding: 20px;">
+                <i class="material-icons" style="font-size: 2.5rem; color: #66bb6a;">build</i>
+                <h6 style="color: #37474f; margin: 8px 0 4px 0;">Engineer Results</h6>
+                <p style="color: #607d8b; font-size: 0.85rem;">Get AI-powered recommendations for how to shift outcomes in your favor.</p>
+            </div>
+            <div class="accent-card ac-purple" style="text-align: center; padding: 20px;">
+                <i class="material-icons" style="font-size: 2.5rem; color: #ab47bc;">smart_toy</i>
+                <h6 style="color: #37474f; margin: 8px 0 4px 0;">AI-Powered</h6>
+                <p style="color: #607d8b; font-size: 0.85rem;">Conversational AI builds scenarios for you with real-time web research.</p>
+            </div>
+        </div>
+        <a href="{% url 'register' %}" class="btn-large blue-grey darken-2 waves-effect waves-light" style="margin-right: 1rem; border-radius: 8px;">
+            <i class="material-icons left">person_add</i>Get Started
+        </a>
+        <a href="{% url 'login' %}" class="btn-large blue-grey lighten-1 waves-effect waves-light" style="border-radius: 8px;">
+            <i class="material-icons left">login</i>Sign In
+        </a>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

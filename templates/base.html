@@ -6,6 +6,7 @@
     <title>{% block title %}Game Theory{% endblock %}</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="{% static 'css/theme.css' %}">
     <style>
         /* Page layout — fixed navbar, scrollable main, compact footer at bottom */
         html, body {
@@ -219,6 +220,11 @@
         <!-- AI Chat -->
         <li class="{% if 'chat' in request.resolver_match.url_name %}active{% endif %}">
             <a href="{% url 'chat_new' %}"><i class="material-icons">smart_toy</i>AI Scenario Builder</a>
+        </li>
+
+        <!-- Methodology -->
+        <li class="{% if request.resolver_match.url_name == 'methodology' %}active{% endif %}">
+            <a href="{% url 'methodology' %}"><i class="material-icons">school</i>BDM Methodology</a>
         </li>
 
         {% if user.is_superuser %}

@@ -1,0 +1,171 @@
+/* Game Theory Shared Theme
+   Consistent styling across all pages, matching the BDM Methodology design language.
+*/
+
+/* Page hero banner */
+.page-hero {
+    text-align: center;
+    padding: 24px 20px;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, #37474f 0%, #546e7a 100%);
+    border-radius: 12px;
+    color: #fff;
+}
+.page-hero h4 {
+    margin: 0 0 6px 0;
+    font-weight: 300;
+    font-size: 1.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+.page-hero p {
+    margin: 0 auto;
+    font-size: 0.95rem;
+    opacity: 0.85;
+    max-width: 700px;
+}
+
+/* Section headers with icon */
+.section-title {
+    font-size: 1.1rem;
+    color: #37474f;
+    margin: 0 0 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #e0e0e0;
+}
+.section-title .section-icon {
+    background: #455a64;
+    color: #fff;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.section-title .section-icon i { font-size: 16px; }
+
+/* Left-border accent cards */
+.accent-card {
+    border-left: 4px solid #90a4ae;
+    background: #fafafa;
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    margin-bottom: 12px;
+}
+.accent-card.ac-blue { border-left-color: #42a5f5; }
+.accent-card.ac-green { border-left-color: #66bb6a; }
+.accent-card.ac-orange { border-left-color: #ffa726; }
+.accent-card.ac-purple { border-left-color: #ab47bc; }
+.accent-card.ac-red { border-left-color: #ef5350; }
+.accent-card.ac-teal { border-left-color: #26a69a; }
+.accent-card h6 {
+    margin: 0 0 6px 0;
+    font-size: 0.95rem;
+    color: #37474f;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.accent-card p {
+    margin: 4px 0;
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: #546e7a;
+}
+
+/* Status chips */
+.gt-chip {
+    font-size: 0.78rem;
+    padding: 2px 10px;
+    border-radius: 12px;
+    color: #fff;
+    display: inline-block;
+    font-weight: 500;
+}
+.gt-chip-draft { background: #78909c; }
+.gt-chip-ready { background: #42a5f5; }
+.gt-chip-running { background: #ffa726; }
+.gt-chip-completed { background: #66bb6a; }
+.gt-chip-archived { background: #bdbdbd; }
+
+/* Toolbar */
+.gt-toolbar {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 4px;
+    align-items: center;
+    padding: 6px 10px;
+    background: linear-gradient(135deg, #eceff1 0%, #f5f5f5 100%);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    overflow-x: auto;
+    border: 1px solid #e0e0e0;
+}
+.gt-toolbar .toolbar-spacer { flex: 1; min-width: 8px; }
+
+/* Metric cards */
+.metric-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin: 12px 0;
+}
+.metric-card {
+    text-align: center;
+    padding: 14px 10px;
+    background: #fafafa;
+    border-radius: 10px;
+    border: 1px solid #e8e8e8;
+    transition: box-shadow 0.2s;
+}
+.metric-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.metric-card .mc-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #37474f;
+    line-height: 1;
+}
+.metric-card .mc-label {
+    font-size: 0.78rem;
+    color: #78909c;
+    margin-top: 4px;
+}
+
+/* Tables */
+.gt-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+.gt-table th, .gt-table td {
+    padding: 6px 10px;
+    border: 1px solid #e8e8e8;
+}
+.gt-table th {
+    background: #f5f5f5;
+    color: #455a64;
+    font-weight: 600;
+    text-align: left;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+.gt-table tr:hover { background: #fafafa; }
+
+/* Card grid for scenario list etc */
+.card-grid {
+    display: grid;
+    gap: 16px;
+}
+.card-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+.card-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+@media only screen and (max-width: 768px) {
+    .card-grid.cols-2, .card-grid.cols-3 { grid-template-columns: 1fr; }
+}

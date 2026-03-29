@@ -16,10 +16,12 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 8px 0;
-        border-bottom: 1px solid #e0e0e0;
+        padding: 12px 18px;
+        background: linear-gradient(135deg, #37474f 0%, #546e7a 100%);
+        border-radius: 10px;
         margin-bottom: 12px;
         flex-shrink: 0;
+        color: #fff;
     }
     .chat-messages {
         flex: 1;
@@ -46,11 +48,11 @@
         font-size: 1.2rem;
     }
     .message.assistant-msg .message-avatar {
-        background: #455a64;
+        background: linear-gradient(135deg, #455a64, #37474f);
         color: #fff;
     }
     .message.user-msg .message-avatar {
-        background: #42a5f5;
+        background: linear-gradient(135deg, #42a5f5, #1e88e5);
         color: #fff;
     }
     .message-bubble {
@@ -107,7 +109,7 @@
         height: 44px;
         border-radius: 50%;
         border: none;
-        background: #455a64;
+        background: linear-gradient(135deg, #42a5f5, #1e88e5);
         color: #fff;
         cursor: pointer;
         display: flex;
@@ -115,7 +117,7 @@
         justify-content: center;
         flex-shrink: 0;
     }
-    .chat-send-btn:hover { background: #37474f; }
+    .chat-send-btn:hover { background: linear-gradient(135deg, #1e88e5, #1565c0); }
     .chat-send-btn:disabled { background: #bdbdbd; cursor: not-allowed; }
     .typing-indicator {
         display: none;
@@ -148,14 +150,14 @@
     <!-- Header -->
     <div class="chat-header">
         <div>
-            <h6 class="blue-grey-text text-darken-3" style="margin: 0;">
-                <i class="material-icons" style="vertical-align: middle;">psychology</i>
-                Scenario Builder
+            <h6 style="margin: 0; font-size: 1rem; display: flex; align-items: center; gap: 8px;">
+                <i class="material-icons" style="font-size: 20px;">smart_toy</i>
+                AI Scenario Builder
             </h6>
-            <small class="grey-text">AI-guided scenario creation</small>
+            <small style="opacity: 0.7; font-size: 0.8rem;">AI-guided scenario creation with web research</small>
         </div>
         <div>
-            <a href="{% url 'scenario_list' %}" class="btn-small blue-grey lighten-1 waves-effect">
+            <a href="{% url 'scenario_list' %}" class="btn-small waves-effect" style="background: rgba(255,255,255,0.15); color: #fff; border-radius: 6px;">
                 <i class="material-icons left">list</i>My Scenarios
             </a>
         </div>

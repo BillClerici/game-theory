@@ -25,3 +25,7 @@ class LandingPageView(TemplateView):
 
 class ApplicationConfigView(TemplateView):
     template_name = "application_config.html"
+
+
+class MethodologyView(TemplateView):
+    template_name = "methodology.html"

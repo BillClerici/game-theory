@@ -1,0 +1,655 @@
+{% extends "base.html" %}
+
+{% block title %}BDM Methodology — Game Theory{% endblock %}
+
+{% block extra_css %}
+<style>
+    .method-container { max-width: 950px; margin: 10px auto; padding: 0 16px 40px 16px; }
+    .method-hero {
+        text-align: center; padding: 30px 20px; margin-bottom: 20px;
+        background: linear-gradient(135deg, #37474f 0%, #546e7a 100%);
+        border-radius: 12px; color: #fff;
+    }
+    .method-hero h4 { margin: 0 0 8px 0; font-weight: 300; }
+    .method-hero p { margin: 0; font-size: 1rem; opacity: 0.85; max-width: 700px; margin: 0 auto; }
+    .method-section { margin-bottom: 24px; }
+    .method-section h5 {
+        font-size: 1.2rem; color: #37474f; margin: 0 0 10px 0;
+        display: flex; align-items: center; gap: 8px;
+        padding-bottom: 6px; border-bottom: 2px solid #e0e0e0;
+    }
+    .method-section h5 .section-num {
+        background: #455a64; color: #fff; width: 28px; height: 28px;
+        border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+        font-size: 0.85rem; font-weight: 600; flex-shrink: 0;
+    }
+    .method-card {
+        border-left: 4px solid #90a4ae; background: #fafafa; border-radius: 0 8px 8px 0;
+        padding: 14px 18px; margin-bottom: 12px;
+    }
+    .method-card.card-blue { border-left-color: #42a5f5; }
+    .method-card.card-green { border-left-color: #66bb6a; }
+    .method-card.card-orange { border-left-color: #ffa726; }
+    .method-card.card-purple { border-left-color: #ab47bc; }
+    .method-card.card-red { border-left-color: #ef5350; }
+    .method-card.card-teal { border-left-color: #26a69a; }
+    .method-card h6 { margin: 0 0 6px 0; font-size: 1rem; color: #37474f; display: flex; align-items: center; gap: 6px; }
+    .method-card p { margin: 4px 0; font-size: 0.88rem; line-height: 1.6; color: #546e7a; }
+    /* Visual diagrams */
+    .flow-diagram {
+        display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
+        gap: 0; margin: 16px 0; padding: 10px 0;
+    }
+    .flow-step {
+        text-align: center; padding: 12px 16px; border-radius: 10px;
+        min-width: 120px; color: #fff; font-size: 0.82rem; font-weight: 500;
+    }
+    .flow-arrow { font-size: 1.5rem; color: #bdbdbd; padding: 0 4px; }
+    .flow-s1 { background: #42a5f5; }
+    .flow-s2 { background: #66bb6a; }
+    .flow-s3 { background: #ffa726; }
+    .flow-s4 { background: #ab47bc; }
+    .flow-s5 { background: #ef5350; }
+    .flow-s6 { background: #26a69a; }
+    /* Parameter visual */
+    .param-visual {
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 12px; margin: 12px 0;
+    }
+    .param-viz-card {
+        padding: 14px; border-radius: 10px; text-align: center;
+    }
+    .param-viz-card .pv-icon { font-size: 2rem; margin-bottom: 4px; }
+    .param-viz-card .pv-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 4px; }
+    .param-viz-card .pv-question { font-style: italic; font-size: 0.82rem; margin-bottom: 6px; }
+    .param-viz-card .pv-scale { font-size: 0.75rem; display: flex; justify-content: space-between; margin-top: 4px; }
+    .param-viz-card .pv-bar { height: 8px; border-radius: 4px; margin: 4px 0; }
+    .pv-position { background: #e3f2fd; color: #1565c0; }
+    .pv-position .pv-bar { background: linear-gradient(to right, #bbdefb, #1565c0); }
+    .pv-capability { background: #e8f5e9; color: #2e7d32; }
+    .pv-capability .pv-bar { background: linear-gradient(to right, #c8e6c9, #2e7d32); }
+    .pv-salience { background: #fff3e0; color: #e65100; }
+    .pv-salience .pv-bar { background: linear-gradient(to right, #ffe0b2, #e65100); }
+    .pv-flexibility { background: #f3e5f5; color: #6a1b9a; }
+    .pv-flexibility .pv-bar { background: linear-gradient(to right, #e1bee7, #6a1b9a); }
+    .pv-risk { background: #ffebee; color: #c62828; }
+    /* EU Formula */
+    .formula-box {
+        background: #263238; color: #e0e0e0; border-radius: 8px;
+        padding: 16px 20px; font-family: 'Courier New', monospace; font-size: 0.9rem;
+        margin: 12px 0; line-height: 1.8; overflow-x: auto;
+    }
+    .formula-box .hl { color: #80cbc4; font-weight: 700; }
+    .formula-box .hl2 { color: #ffcc80; font-weight: 700; }
+    .formula-box .hl3 { color: #ef9a9a; font-weight: 700; }
+    .formula-box .comment { color: #78909c; font-style: italic; }
+    /* Analogy cards */
+    .analogy-row {
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 12px; margin: 12px 0;
+    }
+    .analogy-card {
+        border: 1px solid #e0e0e0; border-radius: 10px; padding: 14px;
+        text-align: center; transition: box-shadow 0.2s;
+    }
+    .analogy-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .analogy-card .ac-icon { font-size: 2.5rem; margin-bottom: 6px; }
+    .analogy-card .ac-title { font-weight: 700; font-size: 0.95rem; color: #37474f; margin-bottom: 4px; }
+    .analogy-card .ac-desc { font-size: 0.82rem; color: #607d8b; line-height: 1.5; }
+    /* Glossary */
+    .glossary-grid {
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 10px; margin: 12px 0;
+    }
+    .glossary-item { padding: 10px 14px; background: #f5f5f5; border-radius: 8px; }
+    .glossary-item .gl-term { font-weight: 700; color: #37474f; font-size: 0.9rem; }
+    .glossary-item .gl-def { font-size: 0.82rem; color: #607d8b; line-height: 1.5; margin-top: 2px; }
+    /* Examples grid */
+    .example-grid {
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 12px; margin: 12px 0;
+    }
+    .example-card {
+        border: 1px solid #e0e0e0; border-radius: 10px; padding: 14px;
+        transition: box-shadow 0.2s;
+    }
+    .example-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .example-card .ex-cat {
+        font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+        letter-spacing: 0.5px; margin-bottom: 4px; padding: 2px 8px;
+        border-radius: 4px; display: inline-block; color: #fff;
+    }
+    .ex-cat-geo { background: #42a5f5; }
+    .ex-cat-corp { background: #66bb6a; }
+    .ex-cat-leg { background: #ffa726; }
+    .ex-cat-neg { background: #ab47bc; }
+    .ex-cat-market { background: #ef5350; }
+    .ex-cat-personal { background: #26a69a; }
+    .example-card .ex-title { font-weight: 700; font-size: 0.95rem; color: #37474f; margin: 4px 0; }
+    .example-card .ex-desc { font-size: 0.82rem; color: #607d8b; line-height: 1.5; }
+    .example-card .ex-players { font-size: 0.75rem; color: #9e9e9e; margin-top: 6px; }
+    /* Round animation */
+    .round-demo { margin: 16px 0; }
+    .rd-players { display: flex; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
+    .rd-player {
+        padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;
+        color: #fff; position: relative; transition: margin-left 0.5s ease;
+    }
+    .rd-bar-bg {
+        height: 12px; background: #e0e0e0; border-radius: 6px; position: relative; margin: 4px 0;
+    }
+    .rd-bar-fill {
+        height: 100%; border-radius: 6px; transition: width 0.5s ease;
+    }
+    .rd-bar-label {
+        display: flex; justify-content: space-between; font-size: 0.7rem; color: #9e9e9e;
+    }
+    @media only screen and (max-width: 600px) {
+        .flow-diagram { flex-direction: column; }
+        .flow-arrow { transform: rotate(90deg); }
+        .param-visual { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="method-container">
+    <!-- Hero -->
+    <div class="method-hero">
+        <h4>The BDM Expected Utility Model</h4>
+        <p>A proven methodology for predicting outcomes of strategic interactions — from geopolitics to business deals. Created by Bruce Bueno de Mesquita with a claimed 90%+ accuracy rate across thousands of predictions.</p>
+    </div>
+
+    <!-- 1. What is it? -->
+    <div class="method-section">
+        <h5><span class="section-num">1</span> What Is Game Theory Prediction?</h5>
+
+        <div class="method-card card-blue">
+            <h6><i class="material-icons" style="font-size:18px;">lightbulb</i> The Core Idea</h6>
+            <p>Imagine you could predict the outcome of a negotiation, political decision, or business deal <strong>before it happens</strong> — and then figure out exactly what to change to get the result you want.</p>
+            <p>That's what this model does. It takes a complex situation with multiple people or organizations ("players"), each with their own goals and power, and simulates how they'll influence each other until the situation settles into an outcome.</p>
+        </div>
+
+        <div class="analogy-row">
+            <div class="analogy-card">
+                <div class="ac-icon">🌊</div>
+                <div class="ac-title">Think of it Like Weather</div>
+                <div class="ac-desc">Meteorologists don't guess — they model how air pressure, temperature, and humidity interact. We do the same with <strong>people's positions, power, and priorities</strong>.</div>
+            </div>
+            <div class="analogy-card">
+                <div class="ac-icon">♟️</div>
+                <div class="ac-title">Strategic Chess</div>
+                <div class="ac-desc">Every player makes moves based on what they think will happen. The model calculates <strong>all possible moves simultaneously</strong> to find where everything converges.</div>
+            </div>
+            <div class="analogy-card">
+                <div class="ac-icon">🧲</div>
+                <div class="ac-title">Magnetic Pull</div>
+                <div class="ac-desc">Each player is like a magnet pulling the outcome toward their preferred position. <strong>Stronger magnets (more power + more motivation) pull harder</strong>.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. How It Works -->
+    <div class="method-section">
+        <h5><span class="section-num">2</span> How the Engine Works — Step by Step</h5>
+
+        <div class="flow-diagram">
+            <div class="flow-step flow-s1"><i class="material-icons">description</i><br>Define<br>Scenario</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step flow-s2"><i class="material-icons">groups</i><br>Identify<br>Players</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step flow-s3"><i class="material-icons">tune</i><br>Set<br>Parameters</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step flow-s4"><i class="material-icons">calculate</i><br>Calculate<br>EU Pairs</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step flow-s5"><i class="material-icons">loop</i><br>Simulate<br>Rounds</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step flow-s6"><i class="material-icons">insights</i><br>Predict<br>Outcome</div>
+        </div>
+
+        <div class="method-card card-blue">
+            <h6><i class="material-icons" style="font-size:18px;">looks_one</i> Step 1: Define the Issue</h6>
+            <p>Every prediction starts with a <strong>question on a 0-100 scale</strong>. The two ends represent the extreme possible outcomes.</p>
+            <p><em>Example:</em> "What will the final car price be?" where 0 = dealer invoice cost and 100 = full sticker price. The status quo (where things are today before negotiation) might be 75.</p>
+        </div>
+
+        <div class="method-card card-green">
+            <h6><i class="material-icons" style="font-size:18px;">looks_two</i> Step 2: Identify Every Player</h6>
+            <p>List everyone who can influence the outcome — not just the obvious ones. Include indirect players like competitors, regulators, market forces, and public opinion.</p>
+            <p>The model needs at least <strong>3 players</strong> to work. Real scenarios often have 5-20+.</p>
+        </div>
+
+        <div class="method-card card-orange">
+            <h6><i class="material-icons" style="font-size:18px;">looks_3</i> Step 3: Set Each Player's Parameters</h6>
+            <p>This is where the magic happens. For each player on each issue, you define five numbers:</p>
+        </div>
+    </div>
+
+    <!-- 3. The Five Parameters -->
+    <div class="method-section">
+        <h5><span class="section-num">3</span> The Five Core Parameters</h5>
+
+        <div class="param-visual">
+            <div class="param-viz-card pv-position">
+                <div class="pv-icon">🎯</div>
+                <div class="pv-title">Position</div>
+                <div class="pv-question">"Where do they want things to land?"</div>
+                <div class="pv-bar"></div>
+                <div class="pv-scale"><span>0 — One extreme</span><span>100 — Other extreme</span></div>
+                <p style="font-size:0.78rem; margin-top:6px;">Their ideal outcome on the 0-100 scale. A buyer wanting the lowest price: 15-25. A seller wanting full price: 80-90.</p>
+            </div>
+            <div class="param-viz-card pv-capability">
+                <div class="pv-icon">⚡</div>
+                <div class="pv-title">Capability</div>
+                <div class="pv-question">"How much power do they have?"</div>
+                <div class="pv-bar"></div>
+                <div class="pv-scale"><span>0 — No influence</span><span>100 — Dominant</span></div>
+                <p style="font-size:0.78rem; margin-top:6px;">Relative power to shape the outcome. A CEO: 75-90. A mid-level manager: 30-45. Even the US in global scenarios rates 70-85, not 100.</p>
+            </div>
+            <div class="param-viz-card pv-salience">
+                <div class="pv-icon">🔥</div>
+                <div class="pv-title">Salience</div>
+                <div class="pv-question">"How much do they care?"</div>
+                <div class="pv-bar"></div>
+                <div class="pv-scale"><span>0 — Don't care</span><span>100 — Top priority</span></div>
+                <p style="font-size:0.78rem; margin-top:6px;">A powerful player who doesn't care won't engage. <strong>Capability × Salience = actual influence</strong>. This is the key insight of BDM.</p>
+            </div>
+            <div class="param-viz-card pv-flexibility">
+                <div class="pv-icon">🤸</div>
+                <div class="pv-title">Flexibility</div>
+                <div class="pv-question">"Will they compromise?"</div>
+                <div class="pv-bar"></div>
+                <div class="pv-scale"><span>0 — Completely rigid</span><span>100 — Very flexible</span></div>
+                <p style="font-size:0.78rem; margin-top:6px;">How much they'll budge under pressure. A government with a mandate: 10-20. A dealmaker: 60-75. Rigid players hold firm but risk isolation.</p>
+            </div>
+            <div class="param-viz-card pv-risk">
+                <div class="pv-icon">🎲</div>
+                <div class="pv-title">Risk Profile</div>
+                <div class="pv-question">"How do they handle uncertainty?"</div>
+                <p style="font-size:0.78rem; margin-top:6px;">
+                    <strong>Risk Averse 🛡</strong> — plays it safe, avoids confrontation<br>
+                    <strong>Risk Neutral ⚖️</strong> — plays the odds rationally (most common)<br>
+                    <strong>Risk Acceptant 🎲</strong> — swings for the fences, challenges aggressively
+                </p>
+            </div>
+        </div>
+
+        <div class="method-card card-teal">
+            <h6><i class="material-icons" style="font-size:18px;">key</i> The Key Insight</h6>
+            <p>The most important thing BDM discovered: <strong>it's not just about who has the most power</strong>. A player with moderate power who cares deeply about the issue (high salience) will often outmaneuver a more powerful player who has other priorities. Think of a small country fighting for survival vs. a superpower that's distracted by 50 other issues.</p>
+        </div>
+    </div>
+
+    <!-- 4. The Simulation Engine -->
+    <div class="method-section">
+        <h5><span class="section-num">4</span> Inside the Simulation Engine</h5>
+
+        <div class="method-card card-purple">
+            <h6><i class="material-icons" style="font-size:18px;">calculate</i> Expected Utility (EU) Calculation</h6>
+            <p>For every pair of players, the engine asks: <strong>"If Player A challenges Player B, what's the expected payoff?"</strong></p>
+        </div>
+
+        <div class="formula-box">
+            <span class="comment">// For each player pair (i challenges j):</span><br><br>
+            <span class="hl">EU</span> = <span class="hl2">P(success)</span> × <span class="hl">U(win)</span> + <span class="hl2">P(failure)</span> × <span class="hl3">U(lose)</span> - <span class="hl">U(status_quo)</span><br><br>
+            <span class="comment">// Where:</span><br>
+            <span class="hl2">P(success)</span> = support for i's position / total engaged capability<br>
+            <span class="hl">U(win)</span>     = distance between positions × salience <span class="comment">// bigger gap = bigger prize</span><br>
+            <span class="hl3">U(lose)</span>    = cost of failed challenge <span class="comment">// adjusted by risk profile</span><br><br>
+            <span class="comment">// If EU > 0: Player i challenges Player j (it's worth the risk)</span><br>
+            <span class="comment">// If EU ≤ 0: Player i stays quiet (not worth it)</span>
+        </div>
+
+        <div class="method-card card-red">
+            <h6><i class="material-icons" style="font-size:18px;">loop</i> Round-by-Round Simulation</h6>
+            <p>The engine runs multiple rounds (typically 5-7). Each round:</p>
+            <p>1️⃣ <strong>Calculate all pairwise EUs</strong> — every player vs. every other player<br>
+            2️⃣ <strong>Identify challenges</strong> — wherever EU > 0, a challenge occurs<br>
+            3️⃣ <strong>Accumulate pressure</strong> — each challenged player receives pressure proportional to challengers' power × motivation<br>
+            4️⃣ <strong>Shift positions</strong> — players under pressure move toward their challengers, moderated by their flexibility and salience (stubborn players move less)<br>
+            5️⃣ <strong>Check for convergence</strong> — if nobody moves more than 0.5 units, the simulation stops</p>
+        </div>
+
+        <!-- Animated round demo -->
+        <div class="method-card" style="border-left-color: #455a64;">
+            <h6><i class="material-icons" style="font-size:18px;">play_circle</i> Watch a Round Unfold</h6>
+            <p style="font-size:0.8rem; color:#9e9e9e; margin-bottom:8px;">Click "Next Round" to see how positions shift under pressure.</p>
+            <div class="round-demo">
+                <div id="demo-round-label" style="font-weight:600; font-size:0.85rem; color:#455a64; margin-bottom:8px;">Starting Positions</div>
+                <div id="demo-bars"></div>
+                <div style="margin-top:10px; display:flex; gap:8px; align-items:center;">
+                    <button class="btn-small blue-grey darken-1 waves-effect" id="demo-next-btn" onclick="demoNextRound()">
+                        <i class="material-icons left">skip_next</i>Next Round
+                    </button>
+                    <button class="btn-small blue-grey lighten-2 waves-effect" onclick="demoReset()">
+                        <i class="material-icons left">replay</i>Reset
+                    </button>
+                    <span id="demo-status" style="font-size:0.8rem; color:#78909c;"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. The Prediction -->
+    <div class="method-section">
+        <h5><span class="section-num">5</span> How the Final Prediction Is Made</h5>
+
+        <div class="method-card card-green">
+            <h6><i class="material-icons" style="font-size:18px;">gps_fixed</i> Power-Weighted Median</h6>
+            <p>The primary prediction is the <strong>power-weighted median</strong> — the position on the scale where 50% of the total (capability × salience) weight lies on each side. This is more robust than a simple average because it isn't skewed by outliers.</p>
+        </div>
+
+        <div class="method-card card-blue">
+            <h6><i class="material-icons" style="font-size:18px;">verified</i> Confidence Score</h6>
+            <p>The confidence score (0-100%) reflects two things:</p>
+            <p><strong>Convergence (60% weight)</strong> — did players cluster toward consensus? Tighter clustering = higher confidence.</p>
+            <p><strong>Coalition Strength (40% weight)</strong> — what percentage of total power supports the predicted outcome? A dominant winning coalition = higher confidence.</p>
+            <p>A confidence of 70%+ is strong. Below 40% means the outcome is fragile and could shift with small parameter changes.</p>
+        </div>
+
+        <div class="method-card card-orange">
+            <h6><i class="material-icons" style="font-size:18px;">balance</i> Stability Assessment</h6>
+            <p><strong>Stable</strong> — players converged, strong coalition. The prediction is reliable.<br>
+            <strong>Fragile</strong> — weak convergence, outcome could tip either way. Worth running "what-if" scenarios.<br>
+            <strong>Deadlocked</strong> — two balanced opposing blocs can't move each other. Indicates a stalemate requiring external intervention.</p>
+        </div>
+    </div>
+
+    <!-- 6. Why It Works -->
+    <div class="method-section">
+        <h5><span class="section-num">6</span> Why Does This Actually Work?</h5>
+
+        <div class="method-card card-teal">
+            <h6><i class="material-icons" style="font-size:18px;">history_edu</i> Track Record</h6>
+            <p>Bruce Bueno de Mesquita has used this model for <strong>over 40 years</strong>, making predictions for the CIA, the US Department of Defense, Fortune 500 companies, and governments worldwide. A declassified CIA study found his model accurate in <strong>over 90% of cases</strong>.</p>
+        </div>
+
+        <div class="analogy-row">
+            <div class="analogy-card">
+                <div class="ac-icon">🧠</div>
+                <div class="ac-title">Rational Actor Theory</div>
+                <div class="ac-desc">People act in their self-interest. They challenge when the expected payoff is positive and stay quiet when it isn't. This simple assumption is <strong>remarkably predictive</strong>.</div>
+            </div>
+            <div class="analogy-card">
+                <div class="ac-icon">🔄</div>
+                <div class="ac-title">Iterative Convergence</div>
+                <div class="ac-desc">Real negotiations aren't one-shot — they involve rounds of back-and-forth. The model captures this <strong>dynamic process</strong> rather than just static snapshots.</div>
+            </div>
+            <div class="analogy-card">
+                <div class="ac-icon">📊</div>
+                <div class="ac-title">All Players Matter</div>
+                <div class="ac-desc">Experts tend to focus on the 2-3 most visible players. This model considers <strong>everyone</strong> — including indirect influences that often tip the balance.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. Outcome Engineering -->
+    <div class="method-section">
+        <h5><span class="section-num">7</span> Outcome Engineering — Changing the Future</h5>
+
+        <div class="method-card card-purple">
+            <h6><i class="material-icons" style="font-size:18px;">build</i> Not Just Prediction — Strategy</h6>
+            <p>The real power isn't just predicting what <strong>will</strong> happen — it's figuring out what to <strong>change</strong> to get the outcome you want. This is called <strong>outcome engineering</strong>.</p>
+        </div>
+
+        <div class="analogy-row">
+            <div class="analogy-card" style="border-color: #42a5f5;">
+                <div class="ac-icon">🎯</div>
+                <div class="ac-title">Shift a Position</div>
+                <div class="ac-desc">Convince a key player to change their preferred outcome. <em>"Show the sales manager data that a lower price leads to more volume."</em></div>
+            </div>
+            <div class="analogy-card" style="border-color: #66bb6a;">
+                <div class="ac-icon">💪</div>
+                <div class="ac-title">Change Capability</div>
+                <div class="ac-desc">Increase your own power or reduce someone else's. <em>"Get pre-approved financing so you can walk away from any deal."</em></div>
+            </div>
+            <div class="analogy-card" style="border-color: #ffa726;">
+                <div class="ac-icon">🔥</div>
+                <div class="ac-title">Raise Salience</div>
+                <div class="ac-desc">Make the issue more important to a player who'd support you. <em>"Emphasize to the competing dealer that you're a serious buyer."</em></div>
+            </div>
+            <div class="analogy-card" style="border-color: #ab47bc;">
+                <div class="ac-icon">🤝</div>
+                <div class="ac-title">Build Coalitions</div>
+                <div class="ac-desc">Align with other players to create a winning bloc. <em>"Use online pricing data + competing quotes to form a price coalition."</em></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 8. Glossary -->
+    <div class="method-section">
+        <h5><span class="section-num">8</span> Glossary</h5>
+
+        <div class="glossary-grid">
+            <div class="glossary-item">
+                <div class="gl-term">BDM</div>
+                <div class="gl-def">Bruce Bueno de Mesquita — the political scientist who created this model in the 1980s.</div>
+            </div>
+            <div class="glossary-item">
+                <div class="gl-term">Expected Utility (EU)</div>
+                <div class="gl-def">The calculated payoff of a player challenging another. If EU > 0, the challenge is rational.</div>
+            </div>
+            <div class="glossary-item">
+                <div class="gl-term">Scenario</div>
+                <div class="gl-def">The overall situation being modeled — e.g., "Buying a new car" or "EU trade policy reform."</div>
+            </div>
+            <div class="glossary-item">
+                <div class="gl-term">Issue</div>
+                <div class="gl-def">The specific decision or outcome being predicted, defined on a 0-100 scale with labeled endpoints.</div>
+            </div>
+            <div class="glossary-item">
+                <div class="gl-term">Player / Stakeholder</div>
+                <div class="gl-def">Any individual, group, or entity that can influence the outcome — including indirect players.</div>
+            </div>
+            <div class="glossary-item">
+                <div class="gl-term">Position</div>
+                <div class="gl-def">Where a player wants the outcome to land on the 0-100 scale. Their ideal result.</div>
+            </div>
+            <div class="glossary-item">
+                <div class="gl-term">Capability</div>
+                <div class="gl-def">A player's relative power to influence the outcome compared to others.</div>
+            </div>
+            <div class="glossary-item">
+                <div class="gl-term">Salience</div>
+                <div class="gl-def">How much a player cares about this specific issue. High salience = they'll fight for it.</div>
+            </div>
+            <div class="glossary-item">
+                <div class="gl-term">Flexibility</div>
+                <div class="gl-def">Willingness to compromise. Flexible players shift under pressure; rigid players hold firm.</div>
+            </div>
+            <div class="glossary-item">
+                <div class="gl-term">Risk Profile</div>
+                <div class="gl-def">How a player handles uncertainty — risk averse (safe), neutral (rational), or acceptant (aggressive).</div>
+            </div>
+            <div class="glossary-item">
+                <div class="gl-term">Status Quo</div>
+                <div class="gl-def">Where things stand today if nobody acts. The starting point on the issue scale.</div>
+            </div>
+            <div class="glossary-item">
+                <div class="gl-term">Convergence</div>
+                <div class="gl-def">When all players' positions stabilize and nobody moves significantly. The simulation stops here.</div>
+            </div>
+            <div class="glossary-item">
+                <div class="gl-term">Deadlock</div>
+                <div class="gl-def">Two balanced opposing blocs that can't move each other. Indicates a stalemate.</div>
+            </div>
+            <div class="glossary-item">
+                <div class="gl-term">Coalition</div>
+                <div class="gl-def">A group of players whose positions cluster together, forming a combined power bloc.</div>
+            </div>
+            <div class="glossary-item">
+                <div class="gl-term">Power-Weighted Median</div>
+                <div class="gl-def">The predicted outcome position where 50% of (capability × salience) weight is on each side.</div>
+            </div>
+            <div class="glossary-item">
+                <div class="gl-term">Outcome Engineering</div>
+                <div class="gl-def">The practice of using model insights to strategically change parameters and shift the predicted outcome.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 9. Examples -->
+    <div class="method-section">
+        <h5><span class="section-num">9</span> Scenario Examples — What Can You Predict?</h5>
+
+        <div class="example-grid">
+            <div class="example-card">
+                <span class="ex-cat ex-cat-neg">Negotiation</span>
+                <div class="ex-title">Buying a Car</div>
+                <div class="ex-desc">Predict the final negotiated price by modeling the buyer, sales rep, sales manager, competing dealers, and online pricing data.</div>
+                <div class="ex-players">Players: Buyer, Sales Rep, Sales Manager, Competing Dealer, Online Pricing</div>
+            </div>
+            <div class="example-card">
+                <span class="ex-cat ex-cat-corp">Corporate</span>
+                <div class="ex-title">M&A Negotiation</div>
+                <div class="ex-desc">Will a merger go through, and at what price? Model the acquiring company, target board, activist shareholders, regulators, and employees.</div>
+                <div class="ex-players">Players: Acquirer CEO, Target Board, Shareholders, FTC, Employee Union</div>
+            </div>
+            <div class="example-card">
+                <span class="ex-cat ex-cat-corp">Corporate</span>
+                <div class="ex-title">Salary Negotiation</div>
+                <div class="ex-desc">Predict your next raise. Model yourself, your manager, HR, the CFO's budget constraints, and competing job offers.</div>
+                <div class="ex-players">Players: You, Manager, HR, CFO, Competing Employer</div>
+            </div>
+            <div class="example-card">
+                <span class="ex-cat ex-cat-geo">Geopolitical</span>
+                <div class="ex-title">Trade Policy Reform</div>
+                <div class="ex-desc">Will a new tariff be imposed? Model the president, Congress, affected industries, foreign governments, and consumer groups.</div>
+                <div class="ex-players">Players: President, Senate, Industry Lobbies, Foreign Gov, Consumer Groups</div>
+            </div>
+            <div class="example-card">
+                <span class="ex-cat ex-cat-geo">Geopolitical</span>
+                <div class="ex-title">Climate Agreement</div>
+                <div class="ex-desc">Will countries agree on emission targets? Model major emitters, island nations, fossil fuel companies, and environmental NGOs.</div>
+                <div class="ex-players">Players: US, China, EU, Island States, Oil Industry, Greenpeace</div>
+            </div>
+            <div class="example-card">
+                <span class="ex-cat ex-cat-leg">Legislative</span>
+                <div class="ex-title">Healthcare Bill</div>
+                <div class="ex-desc">Predict whether a healthcare reform bill passes and in what form. Model parties, committee chairs, lobbyists, and public opinion.</div>
+                <div class="ex-players">Players: Majority Leader, Committee Chair, Pharma Lobby, Insurance Lobby, AARP</div>
+            </div>
+            <div class="example-card">
+                <span class="ex-cat ex-cat-market">Market</span>
+                <div class="ex-title">Tech Industry Regulation</div>
+                <div class="ex-desc">Will new tech regulations pass? Model the tech giants, regulators, lawmakers, consumer advocates, and foreign competitors.</div>
+                <div class="ex-players">Players: Big Tech, FTC Chair, Senate Committee, Consumer Groups, EU</div>
+            </div>
+            <div class="example-card">
+                <span class="ex-cat ex-cat-neg">Negotiation</span>
+                <div class="ex-title">Real Estate Purchase</div>
+                <div class="ex-desc">What will the final home price be? Model the buyer, seller, both agents, the appraiser, and market conditions.</div>
+                <div class="ex-players">Players: Buyer, Seller, Buyer's Agent, Seller's Agent, Appraiser, Market</div>
+            </div>
+            <div class="example-card">
+                <span class="ex-cat ex-cat-personal">Personal</span>
+                <div class="ex-title">Custody Agreement</div>
+                <div class="ex-desc">Predict the likely custody arrangement. Model both parents, attorneys, the judge, a guardian ad litem, and family members.</div>
+                <div class="ex-players">Players: Parent A, Parent B, Both Attorneys, Judge, Guardian ad Litem</div>
+            </div>
+            <div class="example-card">
+                <span class="ex-cat ex-cat-corp">Corporate</span>
+                <div class="ex-title">Vendor Contract Renewal</div>
+                <div class="ex-desc">What terms will a vendor renegotiation land on? Model your procurement team, the vendor, alternative suppliers, and internal stakeholders.</div>
+                <div class="ex-players">Players: Procurement, Vendor, Alt Suppliers, Internal Users, CFO</div>
+            </div>
+            <div class="example-card">
+                <span class="ex-cat ex-cat-geo">Geopolitical</span>
+                <div class="ex-title">Military Conflict Escalation</div>
+                <div class="ex-desc">Will a regional conflict escalate or de-escalate? Model the warring parties, allies, the UN, neighboring countries, and arms suppliers.</div>
+                <div class="ex-players">Players: Country A, Country B, Allies, UN Security Council, Arms Dealers</div>
+            </div>
+            <div class="example-card">
+                <span class="ex-cat ex-cat-personal">Personal</span>
+                <div class="ex-title">College Decision</div>
+                <div class="ex-desc">Where should you go to college? Model yourself, parents, financial aid offices, career prospects, and social factors.</div>
+                <div class="ex-players">Players: Student, Parents, Fin Aid Office A, Fin Aid Office B, Career Market</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Interactive round demo
+var demoPlayers = [
+    { name: 'Buyer', color: '#42a5f5', pos: 20, cap: 45, sal: 90, flex: 65 },
+    { name: 'Sales Rep', color: '#66bb6a', pos: 75, cap: 60, sal: 75, flex: 55 },
+    { name: 'Manager', color: '#ffa726', pos: 85, cap: 75, sal: 65, flex: 35 },
+    { name: 'Competitor', color: '#ab47bc', pos: 35, cap: 40, sal: 45, flex: 55 },
+    { name: 'Online Data', color: '#78909c', pos: 40, cap: 30, sal: 25, flex: 8 },
+];
+var demoState = null;
+var demoRound = 0;
+
+function demoReset() {
+    demoRound = 0;
+    demoState = demoPlayers.map(function(p) { return { name: p.name, color: p.color, pos: p.pos, cap: p.cap, sal: p.sal, flex: p.flex }; });
+    renderDemo();
+    document.getElementById('demo-round-label').textContent = 'Starting Positions';
+    document.getElementById('demo-status').textContent = '';
+    document.getElementById('demo-next-btn').disabled = false;
+}
+
+function renderDemo() {
+    var container = document.getElementById('demo-bars');
+    var html = '';
+    demoState.forEach(function(p) {
+        html += '<div style="margin-bottom:6px;">';
+        html += '<div style="display:flex; justify-content:space-between; align-items:center;">';
+        html += '<span style="font-size:0.8rem; font-weight:600; color:' + p.color + ';">' + p.name + '</span>';
+        html += '<span style="font-size:0.75rem; color:#9e9e9e;">Position: ' + p.pos.toFixed(1) + '</span>';
+        html += '</div>';
+        html += '<div class="rd-bar-bg"><div class="rd-bar-fill" style="width:' + p.pos + '%; background:' + p.color + ';"></div></div>';
+        html += '</div>';
+    });
+    container.innerHTML = html;
+}
+
+function demoNextRound() {
+    if (demoRound >= 7) return;
+    demoRound++;
+
+    // Simplified pressure simulation
+    var maxShift = 0;
+    var newState = demoState.map(function(p, i) {
+        var pressure = 0;
+        var targetSum = 0;
+        var targetWeight = 0;
+        demoState.forEach(function(other, j) {
+            if (i === j) return;
+            var dist = Math.abs(p.pos - other.pos);
+            if (dist < 2) return;
+            var otherPower = other.cap * other.sal / 10000;
+            if ((other.pos < p.pos && p.pos > 40) || (other.pos > p.pos && p.pos < 60)) {
+                pressure += otherPower * dist / 100;
+                targetSum += other.pos * otherPower;
+                targetWeight += otherPower;
+            }
+        });
+        var newPos = p.pos;
+        if (pressure > 0.01 && targetWeight > 0) {
+            var target = targetSum / targetWeight;
+            var shift = pressure * (p.flex / 100) * 0.8;
+            shift = Math.min(shift, Math.abs(target - p.pos));
+            newPos = p.pos + (target > p.pos ? shift : -shift);
+            newPos = Math.max(0, Math.min(100, newPos));
+        }
+        maxShift = Math.max(maxShift, Math.abs(newPos - p.pos));
+        return { name: p.name, color: p.color, pos: newPos, cap: p.cap, sal: p.sal, flex: p.flex };
+    });
+
+    demoState = newState;
+    renderDemo();
+    document.getElementById('demo-round-label').textContent = 'Round ' + demoRound;
+
+    if (maxShift < 0.5 || demoRound >= 7) {
+        document.getElementById('demo-status').textContent = maxShift < 0.5 ? 'Converged!' : 'Max rounds reached.';
+        document.getElementById('demo-next-btn').disabled = true;
+    }
+}
+
+demoReset();
+</script>
+{% endblock %}

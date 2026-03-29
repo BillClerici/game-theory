@@ -16,10 +16,12 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 8px 0;
-        border-bottom: 1px solid #e0e0e0;
+        padding: 12px 18px;
+        background: linear-gradient(135deg, #37474f 0%, #546e7a 100%);
+        border-radius: 10px;
         margin-bottom: 12px;
         flex-shrink: 0;
+        color: #fff;
     }
     .chat-messages {
         flex: 1;
@@ -73,14 +75,14 @@
 <div class="chat-container">
     <div class="chat-header">
         <div>
-            <h6 class="blue-grey-text text-darken-3" style="margin: 0;">
-                <i class="material-icons" style="vertical-align: middle;">build</i>
-                Modify: {{ scenario.title }}
+            <h6 style="margin: 0; font-size: 1rem; display: flex; align-items: center; gap: 8px;">
+                <i class="material-icons" style="font-size: 20px;">build</i>
+                AI Modify: {{ scenario.title }}
             </h6>
-            <small class="grey-text">Chat with AI to update scenario parameters</small>
+            <small style="opacity: 0.7; font-size: 0.8rem;">Chat with AI to update scenario parameters</small>
         </div>
         <div>
-            <a href="{% url 'scenario_detail' scenario.pk %}" class="btn-small blue-grey darken-1 waves-effect">
+            <a href="{% url 'scenario_detail' scenario.pk %}" class="btn-small waves-effect" style="background: rgba(255,255,255,0.15); color: #fff; border-radius: 6px;">
                 <i class="material-icons left">arrow_back</i>Back to Scenario
             </a>
         </div>
