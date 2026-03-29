@@ -301,6 +301,11 @@ def run_simulation(
 
     stability_parent = LookupValue.objects.get(parent__isnull=True, code="OUTCOME_STABILITY")
 
+    # Update scenario status to Running
+    scenario_status_parent = LookupValue.objects.get(parent__isnull=True, code="SCENARIO_STATUS")
+    scenario.status = LookupValue.objects.get(parent=scenario_status_parent, code="RUNNING")
+    scenario.save(update_fields=["status", "updated_at"])
+
     # Create run record
     sim_run = SimulationRun.objects.create(
         scenario=scenario,
@@ -569,10 +574,17 @@ def run_simulation(
 
         sim_run.save()
 
+        # Update scenario status to Completed
+        scenario.status = LookupValue.objects.get(parent=scenario_status_parent, code="COMPLETED")
+        scenario.save(update_fields=["status", "updated_at"])
+
     except Exception:
         sim_run.status = status_failed
         sim_run.execution_time_ms = int((time.time() - start_time) * 1000)
         sim_run.save()
+        # Revert scenario status to Ready (it was valid enough to attempt)
+        scenario.status = LookupValue.objects.get(parent=scenario_status_parent, code="READY")
+        scenario.save(update_fields=["status", "updated_at"])
         raise
 
     return sim_run

@@ -112,8 +112,11 @@ class ScenarioDeleteView(LoginRequiredMixin, View):
 
     def post(self, request, scenario_id):
         scenario = get_object_or_404(Scenario, pk=scenario_id, owner=request.user)
+        # Set status to Archived and soft-delete
+        archived_parent = LookupValue.objects.get(parent__isnull=True, code="SCENARIO_STATUS")
+        scenario.status = LookupValue.objects.get(parent=archived_parent, code="ARCHIVED")
         scenario.is_active = False
-        scenario.save(update_fields=["is_active", "updated_at"])
+        scenario.save(update_fields=["is_active", "status", "updated_at"])
         messages.success(request, f'Scenario "{scenario.title}" archived.')
         return redirect("scenario_list")
 
@@ -172,6 +175,12 @@ class ScenarioDetailView(LoginRequiredMixin, View):
         # Data quality
         quality = compute_data_quality_score(scenario)
         validation_errors = validate_scenario(scenario)
+
+        # Auto-transition Draft → Ready when validation passes
+        if not validation_errors and scenario.status.code == "DRAFT":
+            ready_status_parent = LookupValue.objects.get(parent__isnull=True, code="SCENARIO_STATUS")
+            scenario.status = LookupValue.objects.get(parent=ready_status_parent, code="READY")
+            scenario.save(update_fields=["status", "updated_at"])
 
         # Latest simulation
         latest_sim = SimulationRun.objects.filter(

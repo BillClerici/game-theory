@@ -53,7 +53,7 @@
     .flow-s6 { background: #26a69a; }
     /* Parameter visual */
     .param-visual {
-        display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        display: grid; grid-template-columns: repeat(3, 1fr);
         gap: 12px; margin: 12px 0;
     }
     .param-viz-card {
@@ -87,6 +87,9 @@
     .analogy-row {
         display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
         gap: 12px; margin: 12px 0;
+    }
+    .analogy-row.cols-2 {
+        grid-template-columns: repeat(2, 1fr);
     }
     .analogy-card {
         border: 1px solid #e0e0e0; border-radius: 10px; padding: 14px;
@@ -135,19 +138,41 @@
         padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;
         color: #fff; position: relative; transition: margin-left 0.5s ease;
     }
+    .rd-row { margin-bottom: 10px; padding: 8px 12px; border-radius: 8px; background: #fff; border: 1px solid #eee; transition: background 0.3s; }
+    .rd-row.flash { background: #fff8e1; }
+    .rd-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .rd-name { font-size: 0.9rem; font-weight: 700; }
+    .rd-stats { display: flex; gap: 10px; align-items: center; }
+    .rd-pos-val { font-size: 1.1rem; font-weight: 700; color: #37474f; min-width: 36px; text-align: right; }
+    .rd-shift {
+        font-size: 0.8rem; font-weight: 700; padding: 1px 8px; border-radius: 10px;
+        min-width: 50px; text-align: center;
+    }
+    .rd-shift-pos { background: #e8f5e9; color: #2e7d32; }
+    .rd-shift-neg { background: #ffebee; color: #c62828; }
+    .rd-shift-zero { background: #f5f5f5; color: #bdbdbd; }
     .rd-bar-bg {
-        height: 12px; background: #e0e0e0; border-radius: 6px; position: relative; margin: 4px 0;
+        height: 24px; background: #eceff1; border-radius: 12px; position: relative; margin: 4px 0;
+        overflow: hidden;
     }
     .rd-bar-fill {
-        height: 100%; border-radius: 6px; transition: width 0.5s ease;
+        height: 100%; border-radius: 12px; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex; align-items: center; justify-content: flex-end; padding-right: 8px;
+        font-size: 0.7rem; font-weight: 700; color: rgba(255,255,255,0.9);
+        min-width: 20px;
     }
-    .rd-bar-label {
-        display: flex; justify-content: space-between; font-size: 0.7rem; color: #9e9e9e;
+    .rd-bar-thumb {
+        position: absolute; top: -2px; width: 4px; height: 28px;
+        background: #37474f; border-radius: 2px;
+        transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 0 4px rgba(0,0,0,0.3);
     }
+    .rd-scale { display: flex; justify-content: space-between; font-size: 0.65rem; color: #bdbdbd; margin-top: 2px; }
     @media only screen and (max-width: 600px) {
         .flow-diagram { flex-direction: column; }
         .flow-arrow { transform: rotate(90deg); }
         .param-visual { grid-template-columns: 1fr; }
+        .analogy-row.cols-2 { grid-template-columns: 1fr; }
     }
 </style>
 {% endblock %}
@@ -392,7 +417,7 @@
             <p>The real power isn't just predicting what <strong>will</strong> happen — it's figuring out what to <strong>change</strong> to get the outcome you want. This is called <strong>outcome engineering</strong>.</p>
         </div>
 
-        <div class="analogy-row">
+        <div class="analogy-row cols-2">
             <div class="analogy-card" style="border-color: #42a5f5;">
                 <div class="ac-icon">🎯</div>
                 <div class="ac-title">Shift a Position</div>
@@ -585,26 +610,46 @@ var demoRound = 0;
 
 function demoReset() {
     demoRound = 0;
+    prevState = null;
     demoState = demoPlayers.map(function(p) { return { name: p.name, color: p.color, pos: p.pos, cap: p.cap, sal: p.sal, flex: p.flex }; });
-    renderDemo();
+    renderDemo(false);
     document.getElementById('demo-round-label').textContent = 'Starting Positions';
     document.getElementById('demo-status').textContent = '';
     document.getElementById('demo-next-btn').disabled = false;
 }
 
-function renderDemo() {
+var prevState = null;
+
+function renderDemo(animate) {
     var container = document.getElementById('demo-bars');
     var html = '';
-    demoState.forEach(function(p) {
-        html += '<div style="margin-bottom:6px;">';
-        html += '<div style="display:flex; justify-content:space-between; align-items:center;">';
-        html += '<span style="font-size:0.8rem; font-weight:600; color:' + p.color + ';">' + p.name + '</span>';
-        html += '<span style="font-size:0.75rem; color:#9e9e9e;">Position: ' + p.pos.toFixed(1) + '</span>';
+    demoState.forEach(function(p, idx) {
+        var shift = prevState ? (p.pos - prevState[idx].pos) : 0;
+        var shiftStr = shift > 0.01 ? '+' + shift.toFixed(1) : (shift < -0.01 ? shift.toFixed(1) : '0');
+        var shiftClass = shift > 0.01 ? 'rd-shift-pos' : (shift < -0.01 ? 'rd-shift-neg' : 'rd-shift-zero');
+        var flashClass = (animate && Math.abs(shift) > 0.01) ? ' flash' : '';
+
+        html += '<div class="rd-row' + flashClass + '" id="rd-row-' + idx + '">';
+        html += '<div class="rd-header">';
+        html += '<span class="rd-name" style="color:' + p.color + ';">' + p.name + '</span>';
+        html += '<div class="rd-stats">';
+        html += '<span class="rd-shift ' + shiftClass + '">' + shiftStr + '</span>';
+        html += '<span class="rd-pos-val">' + p.pos.toFixed(1) + '</span>';
+        html += '</div></div>';
+        html += '<div class="rd-bar-bg">';
+        html += '<div class="rd-bar-fill" style="width:' + Math.max(2, p.pos) + '%; background: linear-gradient(90deg, ' + p.color + 'cc, ' + p.color + ');">' + Math.round(p.pos) + '</div>';
+        html += '<div class="rd-bar-thumb" style="left: calc(' + p.pos + '% - 2px);"></div>';
         html += '</div>';
-        html += '<div class="rd-bar-bg"><div class="rd-bar-fill" style="width:' + p.pos + '%; background:' + p.color + ';"></div></div>';
         html += '</div>';
     });
     container.innerHTML = html;
+
+    // Remove flash after animation
+    if (animate) {
+        setTimeout(function() {
+            document.querySelectorAll('.rd-row.flash').forEach(function(el) { el.classList.remove('flash'); });
+        }, 600);
+    }
 }
 
 function demoNextRound() {
@@ -640,8 +685,9 @@ function demoNextRound() {
         return { name: p.name, color: p.color, pos: newPos, cap: p.cap, sal: p.sal, flex: p.flex };
     });
 
+    prevState = demoState;
     demoState = newState;
-    renderDemo();
+    renderDemo(true);
     document.getElementById('demo-round-label').textContent = 'Round ' + demoRound;
 
     if (maxShift < 0.5 || demoRound >= 7) {
