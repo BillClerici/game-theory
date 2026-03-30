@@ -83,12 +83,12 @@
         </div>
         <div class="stat-box sb-orange">
             <div class="sb-icon"><i class="material-icons">insights</i></div>
-            <div class="sb-value">—</div>
+            <div class="sb-value">{{ total_predictions|default:"0" }}</div>
             <div class="sb-label">Predictions</div>
         </div>
         <div class="stat-box sb-purple">
             <div class="sb-icon"><i class="material-icons">compare_arrows</i></div>
-            <div class="sb-value">—</div>
+            <div class="sb-value">{{ total_comparisons|default:"0" }}</div>
             <div class="sb-label">Comparisons</div>
         </div>
     </div>

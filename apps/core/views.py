@@ -1,7 +1,8 @@
+from django.db.models import Count
 from django.views.generic import TemplateView
 
 from apps.scenarios.models import Scenario
-from apps.engine.models import SimulationRun
+from apps.engine.models import PredictionOutcome, SimulationRun
 
 
 class LandingPageView(TemplateView):
@@ -20,6 +21,15 @@ class LandingPageView(TemplateView):
                 scenario__owner=user,
                 status__code="COMPLETED",
             ).count()
+            ctx["total_predictions"] = PredictionOutcome.objects.filter(
+                simulation_run__scenario__owner=user,
+            ).count()
+            ctx["total_comparisons"] = (
+                Scenario.objects.filter(owner=user)
+                .annotate(sim_count=Count("simulation_runs"))
+                .filter(sim_count__gt=1)
+                .count()
+            )
         return ctx
 
 
