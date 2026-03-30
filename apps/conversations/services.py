@@ -672,7 +672,7 @@ def modify_scenario(
         modifications: List of modification objects. Each has a "type" field and relevant data:
             - {"type": "add_player", "name": str, "description": str, "player_type": str, "positions": [{"issue_title": str, "position": float, "capability": float, "salience": float, "flexibility": float, "risk_profile": str}]} — ALWAYS include positions when adding a player. If the scenario has one issue, you may omit issue_title.
             - {"type": "remove_player", "player_name": str}
-            - {"type": "update_player_position", "player_name": str, "issue_title": str, "position": float, "capability": float, "salience": float, "flexibility": float, "risk_profile": str} — use this to change an existing player's parameters
+            - {"type": "update_player_position", "player_name": str, "issue_title": str, "position": float, "capability": float, "salience": float, "flexibility": float, "risk_profile": str, "reasoning": str, "sources": str} — use this to change an existing player's parameters. reasoning = why these values were chosen. sources = URLs or references consulted.
             - {"type": "add_issue", "title": str, "description": str, "scale_min_label": str, "scale_max_label": str, "status_quo_position": int}
             - {"type": "update_issue", "issue_title": str, "scale_min_label": str, "scale_max_label": str, "status_quo_position": int}
             - {"type": "remove_issue", "issue_title": str}
@@ -761,6 +761,8 @@ def _apply_modifications(scenario_id: str, modifications: list[dict], user: Any)
                         "salience": Decimal(str(mod.get("salience", 50))),
                         "flexibility": Decimal(str(mod.get("flexibility", 50))),
                         "risk_profile": risk_lv,
+                        "ai_reasoning": mod.get("reasoning", ""),
+                        "ai_sources": mod.get("sources", ""),
                     },
                 )
                 action = "Set" if created else "Updated"
@@ -1077,9 +1079,12 @@ INSTRUCTIONS:
    - salience: how much they care about this specific issue
    - flexibility: how willing they are to compromise
    - risk_profile: risk_averse, risk_neutral, or risk_acceptant
-3. Call modify_scenario with update_player_position entries for EVERY player on EVERY issue.
-4. Use the EXACT player names and issue titles shown above.
-5. Set ALL values — do not leave any player without complete parameters.
+3. For EVERY update_player_position entry you MUST include:
+   - reasoning: a concise explanation (2-3 sentences) of WHY you chose these specific values for this player on this issue.
+   - sources: the URLs or reference names from your web searches that informed these values. List each source on its own line.
+4. Call modify_scenario with update_player_position entries for EVERY player on EVERY issue.
+5. Use the EXACT player names and issue titles shown above.
+6. Set ALL values — do not leave any player without complete parameters.
 
 Research thoroughly, then make all the modifications in a single tool call."""
 

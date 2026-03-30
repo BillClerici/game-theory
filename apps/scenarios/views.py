@@ -163,6 +163,8 @@ class ScenarioDetailView(LoginRequiredMixin, View):
                         "capability": pp.capability,
                         "salience": pp.salience,
                         "flexibility": pp.flexibility,
+                        "ai_reasoning": pp.ai_reasoning,
+                        "ai_sources": pp.ai_sources,
                         "edit_url": edit_url,
                     })
                 else:

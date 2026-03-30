@@ -163,6 +163,16 @@ class PlayerPosition(BaseModel):
         related_name='+',
         help_text="FK to LookupValue under RISK_PROFILE parent.",
     )
+    ai_reasoning = models.TextField(
+        blank=True,
+        default='',
+        help_text="LLM-generated explanation for why these parameter values were chosen.",
+    )
+    ai_sources = models.TextField(
+        blank=True,
+        default='',
+        help_text="Sources the LLM cited when determining these parameter values.",
+    )
 
     class Meta:
         unique_together = [('player', 'issue')]

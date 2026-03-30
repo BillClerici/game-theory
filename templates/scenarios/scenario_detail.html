@@ -50,6 +50,7 @@
     .pos-cell .pos-val {
         font-weight: 600;
         color: #37474f;
+        padding-right: 20px;
     }
     .pos-cell.pos-empty {
         align-items: center;
@@ -158,6 +159,26 @@
         transition: color 0.15s;
     }
     .info-popup-close:hover { color: #333; }
+    /* AI insight badge on pos cells */
+    .ai-insight-trigger {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #00897b;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 10;
+        transition: transform 0.15s;
+    }
+    .ai-insight-trigger:hover { transform: scale(1.15); }
+    .ai-insight-trigger i { color: #fff; }
+    .ai-insight-popup { z-index: 200; position: fixed !important; }
+    .ai-insight-popup .ai-sources a { color: #00897b; text-decoration: underline; }
     /* Toolbar */
     .scenario-toolbar {
         display: flex;
@@ -317,12 +338,12 @@
 
     <!-- Description + Data Quality -->
     <div style="display: flex; gap: 12px; margin-bottom: 10px; flex-wrap: wrap;">
-        <div style="flex: 1; min-width: 250px;">
+        <div style="flex: 2; min-width: 250px;">
             {% if scenario.description %}
-            <p class="grey-text" style="font-size: 0.9rem; margin: 10px 0 0 0;">{{ scenario.description }}</p>
+            <p class="grey-text" style="font-size: 0.9rem; margin: 0;">{{ scenario.description }}</p>
             {% endif %}
         </div>
-        <div style="flex: 0 0 auto; min-width: 380px;">
+        <div style="flex: 1; min-width: 320px; max-width: 400px;">
             <div class="card" style="margin: 0; border-left: 4px solid #ffa726; border-radius: 0 8px 8px 0; position: relative;">
                 <div class="card-content" style="padding: 12px 16px;">
                     <span class="card-title" style="font-size: 1rem;">
@@ -416,7 +437,7 @@
                 <!-- Issues legend popup -->
                 <div class="info-popup" id="issues-tip" style="left: 0; transform: none; width: 460px; top: 36px;">
                     <i class="material-icons info-popup-close">close</i>
-                    <strong style="font-size: 0.9rem; display: inline-flex; align-items: center; gap: 4px;">
+                    <strong style="font-size: 0.9rem; display: inline-flex; align-items: center; gap: 4px; color: #1e88e5;">
                         <i class="material-icons" style="font-size: 16px;">topic</i> Issues
                     </strong>
                     <p style="margin: 8px 0 10px; color: #555; line-height: 1.5;">
@@ -484,7 +505,7 @@
                 <!-- P/C/S/F legend popup -->
                 <div class="info-popup" id="pcsf-tip" style="left: 0; transform: none; width: 440px; top: 36px;">
                     <i class="material-icons info-popup-close">close</i>
-                    <strong style="font-size: 0.9rem; display: inline-flex; align-items: center; gap: 4px;">
+                    <strong style="font-size: 0.9rem; display: inline-flex; align-items: center; gap: 4px; color: #43a047;">
                         <i class="material-icons" style="font-size: 16px;">groups</i> Player Parameters
                     </strong>
                     <table style="width: 100%; margin-top: 8px; font-size: 0.82rem; border-collapse: collapse;">
@@ -557,7 +578,7 @@
                         <td><strong>{{ player.name }}</strong></td>
                         <td>{{ player.player_type.label }}</td>
                         {% for pp_info in player.position_display %}
-                        <td style="padding: 4px;">
+                        <td style="padding: 4px; position: relative;">
                             {% if pp_info.has_position %}
                             <a href="{{ pp_info.edit_url }}" class="pos-cell" title="Click to edit">
                                 <span class="pos-row"><span class="pos-label">P</span><span class="pos-val">{{ pp_info.position }}</span></span>
@@ -565,6 +586,26 @@
                                 <span class="pos-row"><span class="pos-label">S</span><span class="pos-val">{{ pp_info.salience }}</span></span>
                                 <span class="pos-row"><span class="pos-label">F</span><span class="pos-val">{{ pp_info.flexibility }}</span></span>
                             </a>
+                            {% if pp_info.ai_reasoning %}
+                            <span class="ai-insight-trigger" data-tooltip="ai-tip-{{ forloop.parentloop.counter }}-{{ forloop.counter }}"
+                                  title="View AI reasoning">
+                                <i class="material-icons" style="font-size: 14px;">auto_fix_high</i>
+                            </span>
+                            <div class="info-popup ai-insight-popup" id="ai-tip-{{ forloop.parentloop.counter }}-{{ forloop.counter }}"
+                                 style="width: 380px;">
+                                <i class="material-icons info-popup-close">close</i>
+                                <div style="font-weight: 600; font-size: 0.9rem; color: #00897b; margin-bottom: 6px; display: inline-flex; align-items: center; gap: 4px;">
+                                    <i class="material-icons" style="font-size: 16px;">auto_fix_high</i> AI Reasoning
+                                </div>
+                                <div style="color: #555; margin-bottom: 8px;">{{ pp_info.ai_reasoning }}</div>
+                                {% if pp_info.ai_sources %}
+                                <div style="font-weight: 600; font-size: 0.85rem; color: #00897b; margin-bottom: 4px; display: inline-flex; align-items: center; gap: 4px;">
+                                    <i class="material-icons" style="font-size: 14px;">link</i> Sources
+                                </div>
+                                <div class="ai-sources" style="color: #666; font-size: 0.8rem; word-break: break-all;">{{ pp_info.ai_sources|urlize|linebreaksbr }}</div>
+                                {% endif %}
+                            </div>
+                            {% endif %}
                             {% else %}
                             <a href="{{ pp_info.edit_url }}" class="pos-cell pos-empty" title="Set position">
                                 <i class="material-icons" style="font-size: 20px;">add_circle</i>
@@ -966,6 +1007,37 @@ document.querySelectorAll('.info-popup-close').forEach(function(btn) {
         e.stopPropagation();
         this.closest('.info-popup').classList.remove('active');
     });
+});
+// AI insight triggers on player position cells
+document.querySelectorAll('.ai-insight-trigger').forEach(function(trigger) {
+    trigger.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var tipId = this.dataset.tooltip;
+        var popup = document.getElementById(tipId);
+        if (!popup) return;
+        var wasActive = popup.classList.contains('active');
+        document.querySelectorAll('.info-popup.active').forEach(function(p) { p.classList.remove('active'); });
+        if (!wasActive) {
+            var rect = this.getBoundingClientRect();
+            var popupWidth = 380;
+            var left = rect.left;
+            // If popup would overflow right edge, shift it left
+            if (left + popupWidth > window.innerWidth - 16) {
+                left = window.innerWidth - popupWidth - 16;
+            }
+            popup.style.top = (rect.bottom + 4) + 'px';
+            popup.style.left = left + 'px';
+            popup.style.transform = 'none';
+            popup.classList.add('active');
+        }
+    });
+});
+
+// Open AI source links in new tab
+document.querySelectorAll('.ai-sources a').forEach(function(a) {
+    a.setAttribute('target', '_blank');
+    a.setAttribute('rel', 'noopener noreferrer');
 });
 
 // ── AI Research ──
