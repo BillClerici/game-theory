@@ -7,7 +7,7 @@
 <style>
     .detail-section { margin-bottom: 10px; }
     .detail-section .card-content { padding: 12px 16px; }
-    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; position: relative; }
     .section-header h6 { margin: 0; display: flex; align-items: center; gap: 6px; }
     .section-header h6 .material-icons { vertical-align: middle; }
     .card-title { display: flex !important; align-items: center; gap: 6px; margin-bottom: 6px !important; }
@@ -147,6 +147,17 @@
         z-index: 100;
     }
     .info-popup.active { display: block; }
+    .info-popup-close {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        cursor: pointer;
+        color: #9e9e9e;
+        font-size: 18px !important;
+        line-height: 1;
+        transition: color 0.15s;
+    }
+    .info-popup-close:hover { color: #333; }
     /* Toolbar */
     .scenario-toolbar {
         display: flex;
@@ -324,8 +335,9 @@
                         <i class="material-icons" style="font-size: 16px; color: #fff;">help_outline</i>
                     </span>
                     <div class="info-popup" id="dq-tip" style="right: 0; left: auto; transform: none; width: 500px;">
-                        <div style="font-weight: 600; font-size: 0.95rem; color: #ffa726; margin-bottom: 8px;">
-                            <i class="material-icons" style="font-size: 16px; vertical-align: middle;">assessment</i> Data Quality Score
+                        <i class="material-icons info-popup-close">close</i>
+                        <div style="font-weight: 600; font-size: 0.95rem; color: #ffa726; margin-bottom: 8px; display: inline-flex; align-items: center; gap: 4px;">
+                            <i class="material-icons" style="font-size: 16px;">assessment</i> Data Quality Score
                         </div>
                         <p style="font-size: 0.82rem; color: #546e7a; margin: 0 0 8px 0;">
                             The overall score (0–100) measures how well your scenario is set up for accurate predictions. Higher = more reliable results.
@@ -393,7 +405,34 @@
     <div class="card detail-section" style="border-left: 4px solid #42a5f5; border-radius: 0 8px 8px 0;">
         <div class="card-content">
             <div class="section-header">
-                <h6 style="color: #1e88e5;"><i class="material-icons" style="vertical-align: middle;">topic</i> Issues</h6>
+                <h6 style="color: #1e88e5;">
+                    <i class="material-icons" style="vertical-align: middle;">topic</i> Issues
+                    <span class="info-badge info-trigger" data-tooltip="issues-tip"
+                          style="width: 22px; height: 22px; background: #42a5f5; vertical-align: middle; margin-left: 6px;"
+                          title="What are Issues?">
+                        <i class="material-icons" style="font-size: 14px; color: #fff;">help_outline</i>
+                    </span>
+                </h6>
+                <!-- Issues legend popup -->
+                <div class="info-popup" id="issues-tip" style="left: 0; transform: none; width: 460px; top: 36px;">
+                    <i class="material-icons info-popup-close">close</i>
+                    <strong style="font-size: 0.9rem; display: inline-flex; align-items: center; gap: 4px;">
+                        <i class="material-icons" style="font-size: 16px;">topic</i> Issues
+                    </strong>
+                    <p style="margin: 8px 0 10px; color: #555; line-height: 1.5;">
+                        Issues are the key questions or decisions at stake in this scenario. Each issue defines a spectrum of possible outcomes that players are trying to influence.
+                    </p>
+                    <table style="width: 100%; font-size: 0.82rem; border-collapse: collapse;">
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 6px 8px; white-space: nowrap;"><strong>Scale</strong></td>
+                            <td style="padding: 6px 8px; color: #666;">The range of possible outcomes for the issue, from one extreme (0) to the opposite (100). Each end is labeled to describe what that position represents.</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 6px 8px; white-space: nowrap;"><strong>Status Quo</strong></td>
+                            <td style="padding: 6px 8px; color: #666;">The current state of affairs on this issue (0–100). This is the default outcome if no player successfully shifts the result.</td>
+                        </tr>
+                    </table>
+                </div>
                 <a href="{% url 'issue_create' scenario.pk %}" class="btn-small waves-effect" style="background: linear-gradient(135deg, #42a5f5, #1e88e5); border-radius: 6px;">
                     <i class="material-icons left">add</i>Add Issue
                 </a>
@@ -434,7 +473,43 @@
     <div class="card detail-section" style="border-left: 4px solid #66bb6a; border-radius: 0 8px 8px 0;">
         <div class="card-content">
             <div class="section-header">
-                <h6 style="color: #43a047;"><i class="material-icons" style="vertical-align: middle;">groups</i> Players</h6>
+                <h6 style="color: #43a047;">
+                    <i class="material-icons" style="vertical-align: middle;">groups</i> Players
+                    <span class="info-badge info-trigger" data-tooltip="pcsf-tip"
+                          style="width: 22px; height: 22px; background: #66bb6a; vertical-align: middle; margin-left: 6px;"
+                          title="What do P, C, S, F mean?">
+                        <i class="material-icons" style="font-size: 14px; color: #fff;">help_outline</i>
+                    </span>
+                </h6>
+                <!-- P/C/S/F legend popup -->
+                <div class="info-popup" id="pcsf-tip" style="left: 0; transform: none; width: 440px; top: 36px;">
+                    <i class="material-icons info-popup-close">close</i>
+                    <strong style="font-size: 0.9rem; display: inline-flex; align-items: center; gap: 4px;">
+                        <i class="material-icons" style="font-size: 16px;">groups</i> Player Parameters
+                    </strong>
+                    <table style="width: 100%; margin-top: 8px; font-size: 0.82rem; border-collapse: collapse;">
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 6px 8px;"><span class="pos-label" style="display: inline-block; width: 22px; text-align: center; font-weight: bold;">P</span></td>
+                            <td style="padding: 6px 0; white-space: nowrap;"><strong>Position</strong> (0–100)</td>
+                            <td style="padding: 6px 8px; color: #666;">Where this player stands on the issue. 0 = fully opposed, 100 = fully in favor.</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 6px 8px;"><span class="pos-label" style="display: inline-block; width: 22px; text-align: center; font-weight: bold;">C</span></td>
+                            <td style="padding: 6px 0; white-space: nowrap;"><strong>Capability</strong> (0–100)</td>
+                            <td style="padding: 6px 8px; color: #666;">The player's power or resources to influence the outcome.</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 6px 8px;"><span class="pos-label" style="display: inline-block; width: 22px; text-align: center; font-weight: bold;">S</span></td>
+                            <td style="padding: 6px 0; white-space: nowrap;"><strong>Salience</strong> (0–100)</td>
+                            <td style="padding: 6px 8px; color: #666;">How important this issue is to the player. Higher = more motivated to act.</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 6px 8px;"><span class="pos-label" style="display: inline-block; width: 22px; text-align: center; font-weight: bold;">F</span></td>
+                            <td style="padding: 6px 0; white-space: nowrap;"><strong>Flexibility</strong> (0–100)</td>
+                            <td style="padding: 6px 8px; color: #666;">Willingness to compromise or shift position during negotiations.</td>
+                        </tr>
+                    </table>
+                </div>
                 <div style="display: flex; gap: 6px;">
                     {% if players and issues %}
                     <button type="button" id="ai-research-btn" class="btn-small teal darken-1 waves-effect"
@@ -532,16 +607,17 @@
                         <span class="score-label">Predicted Outcome</span>
                     </div>
                     <div class="info-popup" id="outcome-tip">
-                        <div style="font-weight: 600; font-size: 0.95rem; color: #42a5f5; margin-bottom: 6px;">
-                            <i class="material-icons" style="font-size: 16px; vertical-align: middle;">scatter_plot</i> Predicted Outcome
+                        <i class="material-icons info-popup-close">close</i>
+                        <div style="font-weight: 600; font-size: 0.95rem; color: #42a5f5; margin-bottom: 4px; display: inline-flex; align-items: center; gap: 4px;">
+                            <i class="material-icons" style="font-size: 16px;">scatter_plot</i> Predicted Outcome
                         </div>
-                        The power-weighted median position on a 0–100 scale.
+                        <div style="color: #555; margin-bottom: 6px;">The power-weighted median position on a 0–100 scale.</div>
                         {% if issues %}{% with first_issue=issues.0 %}
-                        <br><br><strong>0</strong> = {{ first_issue.scale_min_label }}
+                        <strong>0</strong> = {{ first_issue.scale_min_label }}
                         <br><strong>100</strong> = {{ first_issue.scale_max_label }}
                         <br><strong>Status quo</strong> = {{ first_issue.status_quo_position }}
                         {% endwith %}{% endif %}
-                        <br><br>A score of <strong>{{ latest_sim.predicted_outcome }}</strong> means the model predicts the negotiated outcome will land at this point after {{ latest_sim.total_rounds_executed }} rounds of players exerting influence on each other.
+                        <div style="margin-top: 6px;">A score of <strong>{{ latest_sim.predicted_outcome }}</strong> means the model predicts the negotiated outcome will land at this point after {{ latest_sim.total_rounds_executed }} rounds of players exerting influence on each other.</div>
                     </div>
                 </div>
                 <div class="col s6" style="position: relative;">
@@ -555,18 +631,18 @@
                         <span class="score-label">Confidence</span>
                     </div>
                     <div class="info-popup" id="conf-tip">
-                        <div style="font-weight: 600; font-size: 0.95rem; color: #66bb6a; margin-bottom: 6px;">
-                            <i class="material-icons" style="font-size: 16px; vertical-align: middle;">verified</i> Confidence Score
+                        <i class="material-icons info-popup-close">close</i>
+                        <div style="font-weight: 600; font-size: 0.95rem; color: #66bb6a; margin-bottom: 4px; display: inline-flex; align-items: center; gap: 4px;">
+                            <i class="material-icons" style="font-size: 16px;">verified</i> Confidence Score
                         </div>
-                        How reliable is this prediction? Based on:
-                        <br><strong>Convergence (60%)</strong> — did players cluster toward consensus? Tighter = higher confidence.
+                        <div style="color: #555; margin-bottom: 6px;">How reliable is this prediction? Based on:</div>
+                        <strong>Convergence (60%)</strong> — did players cluster toward consensus? Tighter = higher confidence.
                         <br><strong>Coalition Strength (40%)</strong> — what % of total power backs the outcome?
-                        <br><br>
-                        {% widthratio latest_sim.confidence_score 1 100 %}% means
+                        <div style="margin-top: 6px;">{% widthratio latest_sim.confidence_score 1 100 %}% means
                         {% if latest_sim.confidence_score >= 0.7 %}the prediction is <strong style="color: #66bb6a;">strong</strong> — players converged well and a dominant coalition supports this outcome.
                         {% elif latest_sim.confidence_score >= 0.4 %}the prediction is <strong style="color: #ffa726;">moderate</strong> — there is some convergence but the outcome could shift if key players change positions.
                         {% else %}the prediction is <strong style="color: #ef5350;">uncertain</strong> — players are divided and the outcome is fragile. Small parameter changes could significantly alter results.
-                        {% endif %}
+                        {% endif %}</div>
                     </div>
                 </div>
             </div>
@@ -883,6 +959,13 @@ document.addEventListener('click', function() {
 // Prevent popup clicks from closing
 document.querySelectorAll('.info-popup').forEach(function(p) {
     p.addEventListener('click', function(e) { e.stopPropagation(); });
+});
+// Close button inside popups
+document.querySelectorAll('.info-popup-close').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        this.closest('.info-popup').classList.remove('active');
+    });
 });
 
 // ── AI Research ──

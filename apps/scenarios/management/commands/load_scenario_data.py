@@ -69,10 +69,65 @@ class Command(BaseCommand):
 
         self.stdout.write(f"Patched {patched} user references across {len(data)} objects")
 
+        # Define which FK fields reference which model
+        FK_TO_MODEL = {
+            "scenario": "scenarios.scenario",
+            "issue": "scenarios.scenarioissue",
+            "player": "scenarios.player",
+            "position": "scenarios.playerposition",
+            "simulation_run": "engine.simulationrun",
+            "session": "conversations.conversationsession",
+        }
+
+        # Iteratively strip orphaned records until stable
+        clean_data = data
+        total_stripped = 0
+        while True:
+            pk_sets: dict[str, set[str]] = {}
+            for obj in clean_data:
+                pk_sets.setdefault(obj["model"], set()).add(str(obj["pk"]))
+
+            kept = []
+            stripped = 0
+            for obj in clean_data:
+                fields = obj.get("fields", {})
+                orphan = False
+                for fk_field, target_model in FK_TO_MODEL.items():
+                    if fk_field in fields and fields[fk_field]:
+                        if target_model in pk_sets and str(fields[fk_field]) not in pk_sets[target_model]:
+                            orphan = True
+                            break
+                if orphan:
+                    stripped += 1
+                else:
+                    kept.append(obj)
+
+            total_stripped += stripped
+            clean_data = kept
+            if stripped == 0:
+                break
+
+        if total_stripped:
+            self.stdout.write(self.style.WARNING(f"Stripped {total_stripped} orphaned records"))
+
+        # Sort objects by model dependency order before loading
+        MODEL_ORDER = {
+            'scenarios.scenario': 0,
+            'scenarios.scenarioissue': 1,
+            'scenarios.player': 2,
+            'scenarios.playerposition': 3,
+            'engine.simulationrun': 4,
+            'engine.roundresult': 5,
+            'engine.predictionoutcome': 6,
+            'conversations.conversationsession': 7,
+            'conversations.conversationmessage': 8,
+        }
+        clean_data.sort(key=lambda obj: MODEL_ORDER.get(obj['model'], 99))
+
         # Write patched fixture to temp file and load it
         temp_path = filepath.parent / "_patched_scenario_data.json"
         with open(temp_path, "w", encoding="utf-8") as f:
-            json.dump(data, f)
+            json.dump(clean_data, f)
 
         from django.core.management import call_command
         call_command("loaddata", str(temp_path), verbosity=1)
